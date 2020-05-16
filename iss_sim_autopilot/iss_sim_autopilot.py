@@ -82,31 +82,31 @@ class controlPanelClass():
         self.clicksExecuteArray=self.clicksExecuteArray.astype(int)
         #print('calcClicksArray desided on =',self.clicksExecuteArray)
     def clickButtonsArray(self):
-        #print('clickButtonsArray received =',self.clicksExecuteArray)
-        #if self.clicksExecuteArray[0]>0:
-        #    self.clickButton('roll-right-button',np.absolute(self.clicksExecuteArray[0]),timeDeltaSameClicks)
-        #else: 
-        #    self.clickButton('roll-left-button',np.absolute(self.clicksExecuteArray[0]),timeDeltaSameClicks)
+        print('clickButtonsArray received =',self.clicksExecuteArray)
+        if self.clicksExecuteArray[0]>0:
+            self.clickButton('roll-right-button',np.absolute(self.clicksExecuteArray[0]),timeDeltaSameClicks)
+        else: 
+            self.clickButton('roll-left-button',np.absolute(self.clicksExecuteArray[0]),timeDeltaSameClicks)
 #
-        #if self.clicksExecuteArray[1]>0:
-        #    self.clickButton('pitch-down-button',np.absolute(self.clicksExecuteArray[1]),timeDeltaSameClicks)
-        #else: 
-        #    self.clickButton('pitch-up-button',np.absolute(self.clicksExecuteArray[1]),timeDeltaSameClicks)
+        if self.clicksExecuteArray[1]>0:
+            self.clickButton('pitch-down-button',np.absolute(self.clicksExecuteArray[1]),timeDeltaSameClicks)
+        else: 
+            self.clickButton('pitch-up-button',np.absolute(self.clicksExecuteArray[1]),timeDeltaSameClicks)
 #
-        #if self.clicksExecuteArray[2]>0:
-        #    self.clickButton('yaw-right-button',np.absolute(self.clicksExecuteArray[2]),timeDeltaSameClicks)
-        #else: 
-        #    self.clickButton('yaw-left-button',np.absolute(self.clicksExecuteArray[2]),timeDeltaSameClicks)
+        if self.clicksExecuteArray[2]>0:
+            self.clickButton('yaw-right-button',np.absolute(self.clicksExecuteArray[2]),timeDeltaSameClicks)
+        else: 
+            self.clickButton('yaw-left-button',np.absolute(self.clicksExecuteArray[2]),timeDeltaSameClicks)
 
         if self.clicksExecuteArray[4]>0:
-            self.clickButton('translate-right-button',np.absolute(self.clicksExecuteArray[5]),timeDeltaSameClicks)
+            self.clickButton('translate-right-button',np.absolute(self.clicksExecuteArray[4]),timeDeltaSameClicks)
         else: 
-            self.clickButton('translate-left-button',np.absolute(self.clicksExecuteArray[5]),timeDeltaSameClicks)
+            self.clickButton('translate-left-button',np.absolute(self.clicksExecuteArray[4]),timeDeltaSameClicks)
 ##
-        #if self.clicksExecuteArray[5]>0:
-        #    self.clickButton('translate-up-button',np.absolute(self.clicksExecuteArray[4]),timeDeltaSameClicks)
-        #else: 
-        #    self.clickButton('translate-down-button',np.absolute(self.clicksExecuteArray[4]),timeDeltaSameClicks)
+        if self.clicksExecuteArray[5]>0:
+            self.clickButton('translate-up-button',np.absolute(self.clicksExecuteArray[5]),timeDeltaSameClicks)
+        else: 
+            self.clickButton('translate-down-button',np.absolute(self.clicksExecuteArray[5]),timeDeltaSameClicks)
 ##
         #if self.clicksExecuteArray[6]>0:
         #    self.clickButton('translate-backward-button',np.absolute(self.clicksExecuteArray[6]),timeDeltaSameClicks)
@@ -145,7 +145,7 @@ waitAfterButtonsClickable=5
 
 #def main():
 #chromedriver needs to be copied to disk
-chromedriver = "E:\\Python\\chromedriver.exe"
+chromedriver = "E:\\MyProj\\chromedriver.exe"
 browser=webdriver.Chrome(chromedriver)
 #open chrome with the following address
 browser.get("https://iss-sim.spacex.com/")
@@ -181,7 +181,7 @@ controlPanel.printInstruments()
 
 #The loop
 tl = Timeloop()
-@tl.job(interval=timedelta(seconds=5))
+@tl.job(interval=timedelta(seconds=1))
 def sample_job_every_5s():
     print("Job current time = {}".format(time.ctime()))
     controlPanel.readInstruments()
@@ -192,7 +192,7 @@ def sample_job_every_5s():
     #print(controlPanel.deltaRateArray[4],'=',controlPanel.desiredRateArray[4],'-',controlPanel.currentRateArray[4])
     #print('clickExecute = ',controlPanel.clicksExecuteArray[4])
     #print('done')
-    #controlPanel.clickButtonsArray()
+    controlPanel.clickButtonsArray()
 
     #TODO: bad current rate calculation - simply record number of clicks! and test click rate - easy!
 
