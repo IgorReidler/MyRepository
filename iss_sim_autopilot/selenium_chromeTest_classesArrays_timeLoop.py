@@ -1,14 +1,8 @@
 import numpy as np
-import time
-from timeloop import Timeloop
-from datetime import timedelta
-
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-
-#comment for github
 
 class controlPanelClass(): 
     def __init__(self): 
@@ -35,24 +29,13 @@ class controlPanelClass():
         self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.translationRateParam]
         #array [roll, pitch, yaw, x, y, z, range]
 
-    #def reset(self):
-    #    self.currentErrorArray=np.zeros(7)
-    #    self.currentRateArray=np.zeros(7)
-    #    self.desiredRateArray=np.zeros(7)
-    #    self.desiredClicksArray=np.zeros(7)
-    #    self.currentClicksArray=np.zeros(7).astype(int)
-    #    self.clicksExecuteArray=np.zeros(7)
-
     def readInstruments(self):
         print('[[[[[[ Reading instruments ]]]]]')
-        self.previousErrorArray=np.copy(self.currentErrorArray) #save last current error array to previous
-        self.timePrevErrorUpdate = self.timeCurrentErrorUpdate #save last current time array to previous
         self.currentErrorArray[0] = float(browser.find_element_by_xpath("//div[@id='roll']/div[@class='error']").text[:-1])
         self.currentErrorArray[1]  =float(browser.find_element_by_xpath("//div[@id='pitch']/div[@class='error']").text[:-1])
         self.currentErrorArray[2]  =float(browser.find_element_by_xpath("//div[@id='yaw']/div[@class='error']").text[:-1])
         #Translation Error
         self.currentErrorArray[3]  =float(browser.find_element_by_xpath("//div[@id='x-range']/div[@class='distance']").text[:-1])
-        self.timeCurrentErrorUpdate = time.time()
         self.currentErrorArray[4]  =float(browser.find_element_by_xpath("//div[@id='y-range']/div[@class='distance']").text[:-1])
         self.currentErrorArray[5]  =float(browser.find_element_by_xpath("//div[@id='z-range']/div[@class='distance']").text[:-1])
         self.currentErrorArray[6]  =float(browser.find_element_by_xpath("//div[@id='range']/div[@class='rate']").text[:-1])
@@ -62,17 +45,9 @@ class controlPanelClass():
         self.currentRateArray[2]  =float(browser.find_element_by_xpath("//div[@id='yaw']/div[contains(@class, 'rate')]").text[:-3])
         #Translation Rates
         self.currentRateArray[6] = float(browser.find_element_by_xpath("//div[@id='rate']/div[contains(@class, 'rate')]").text[:-4])
-        #Calculate y, z rates
-        if not self.firstreadInstruments:
-            self.timeDeltaErrorUpdates = self.timeCurrentErrorUpdate - self.timePrevErrorUpdate
-            print('time Delta = ',self.timeDeltaErrorUpdates)
-            self.currentRateArray[4]=np.subtract(self.currentErrorArray[4],self.previousErrorArray[4])
-            self.currentRateArray[4]=np.divide(self.currentRateArray[4],self.timeDeltaErrorUpdates)
-            print('Rate = ',self.currentRateArray[4])
-
-        self.firstreadInstruments=False
+        
     def calcClicksArray(self):
-        #self.desiredRateArray=np.power(self.currentErrorArray,2)
+        #self.desiredRateArray=np.power(self.currentErrorArray,2) #for power law rate
         self.desiredRateArray=np.multiply(self.currentErrorArray,self.rateParamsArray)
         self.deltaRateArray=np.subtract(self.desiredRateArray,self.currentRateArray)
         self.clicksExecuteArray=np.divide(self.deltaRateArray,self.ratePerClickArray)
@@ -118,8 +93,6 @@ class controlPanelClass():
         for idx in range(timesNum):
             self.buttonElement.click()
             #time.sleep(timeDeltaSameClicks) #wait between consecutive clicks
-
-
     def printInstruments(self):
         print(self.currentErrorArray)
         print(self.currentRateArray)
@@ -161,45 +134,21 @@ wait.until(EC.element_to_be_clickable((By.ID, 'translate-up-button')))
 time.sleep(waitAfterButtonsClickable)
 print('<<<<<<<<<<<< Script is Ready! >>>>>>>>>>>>>')
 
-#Class init
-controlPanel=controlPanelClass()
-#First read check
-controlPanel.readInstruments()
-controlPanel.printInstruments()
-
-##scheduler
-#s = sched.scheduler(time.time, time.sleep)
-#def do_something(sc): 
-#    print(".... Running the loop ....")
-#    controlPanel.readInstruments()
-#    controlPanel.calcClicksArray()
-#    controlPanel.clickButtonsArray()
-#    # do your stuff
-#    s.enter(5, 1, do_something, (sc,))
-#s.enter(5, 1, do_something, (s,))
-#s.run()
+controlPanel=controlPanelClass() # init
+ controlPanelClass
 
 #The loop
-tl = Timeloop()
-@tl.job(interval=timedelta(seconds=5))
-def sample_job_every_5s():
-    print("Job current time = {}".format(time.ctime()))
+while 1
+    print(".... Running the loop ....")
     controlPanel.readInstruments()
     controlPanel.calcClicksArray()
+    controlPanel.clickButtonsArray()
+
     #print('desiredRateArray = currentErrorArray * rateParamsArray')
     #print(controlPanel.desiredRateArray[4],'=',controlPanel.currentErrorArray[4],'*',controlPanel.rateParamsArray[4])
     #print('deltaRateArray = desiredRateArray - currentRateArray')
     #print(controlPanel.deltaRateArray[4],'=',controlPanel.desiredRateArray[4],'-',controlPanel.currentRateArray[4])
     #print('clickExecute = ',controlPanel.clicksExecuteArray[4])
     #print('done')
-    #controlPanel.clickButtonsArray()
 
     #TODO: bad current rate calculation - simply record number of clicks! and test click rate - easy!
-
-    #print('previousErrorArray = ',self.previousErrorArray[4])
-    #print('currentErrorArray = ',self.currentErrorArray[4])
-    #print('currentRateArray = ',self.currentRateArray[4])
-    #print('time delta = ',self.timeDeltaErrorUpdates)
-    #print('done')
-
-tl.start(block=True)
