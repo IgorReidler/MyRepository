@@ -1,4 +1,5 @@
 import numpy as np
+import time
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -30,7 +31,7 @@ class controlPanelClass():
         #array [roll, pitch, yaw, x, y, z, range]
 
     def readInstruments(self):
-        print('[[[[[[ Reading instruments ]]]]]')
+        print('TheLoop: reading instruments ..')
         self.currentErrorArray[0] = float(browser.find_element_by_xpath("//div[@id='roll']/div[@class='error']").text[:-1])
         self.currentErrorArray[1]  =float(browser.find_element_by_xpath("//div[@id='pitch']/div[@class='error']").text[:-1])
         self.currentErrorArray[2]  =float(browser.find_element_by_xpath("//div[@id='yaw']/div[@class='error']").text[:-1])
@@ -57,26 +58,26 @@ class controlPanelClass():
         self.clicksExecuteArray=self.clicksExecuteArray.astype(int)
         #print('calcClicksArray desided on =',self.clicksExecuteArray)
     def clickButtonsArray(self):
-        #print('clickButtonsArray received =',self.clicksExecuteArray)
-        #if self.clicksExecuteArray[0]>0:
-        #    self.clickButton('roll-right-button',np.absolute(self.clicksExecuteArray[0]),timeDeltaSameClicks)
-        #else: 
-        #    self.clickButton('roll-left-button',np.absolute(self.clicksExecuteArray[0]),timeDeltaSameClicks)
-#
-        #if self.clicksExecuteArray[1]>0:
-        #    self.clickButton('pitch-down-button',np.absolute(self.clicksExecuteArray[1]),timeDeltaSameClicks)
-        #else: 
-        #    self.clickButton('pitch-up-button',np.absolute(self.clicksExecuteArray[1]),timeDeltaSameClicks)
-#
-        #if self.clicksExecuteArray[2]>0:
-        #    self.clickButton('yaw-right-button',np.absolute(self.clicksExecuteArray[2]),timeDeltaSameClicks)
-        #else: 
-        #    self.clickButton('yaw-left-button',np.absolute(self.clicksExecuteArray[2]),timeDeltaSameClicks)
-
-        if self.clicksExecuteArray[4]>0:
-            self.clickButton('translate-right-button',np.absolute(self.clicksExecuteArray[5]),timeDeltaSameClicks)
+        print('TheLoop: clicking Buttons ',self.clicksExecuteArray)
+        if self.clicksExecuteArray[0]>0:
+            self.clickButton('roll-right-button',np.absolute(self.clicksExecuteArray[0]),timeDeltaSameClicks)
         else: 
-            self.clickButton('translate-left-button',np.absolute(self.clicksExecuteArray[5]),timeDeltaSameClicks)
+            self.clickButton('roll-left-button',np.absolute(self.clicksExecuteArray[0]),timeDeltaSameClicks)
+#
+        if self.clicksExecuteArray[1]>0:
+            self.clickButton('pitch-down-button',np.absolute(self.clicksExecuteArray[1]),timeDeltaSameClicks)
+        else: 
+            self.clickButton('pitch-up-button',np.absolute(self.clicksExecuteArray[1]),timeDeltaSameClicks)
+#
+        if self.clicksExecuteArray[2]>0:
+            self.clickButton('yaw-right-button',np.absolute(self.clicksExecuteArray[2]),timeDeltaSameClicks)
+        else: 
+            self.clickButton('yaw-left-button',np.absolute(self.clicksExecuteArray[2]),timeDeltaSameClicks)
+
+        #if self.clicksExecuteArray[4]>0:
+        #    self.clickButton('translate-right-button',np.absolute(self.clicksExecuteArray[5]),timeDeltaSameClicks)
+        #else: 
+        #    self.clickButton('translate-left-button',np.absolute(self.clicksExecuteArray[5]),timeDeltaSameClicks)
 ##
         #if self.clicksExecuteArray[5]>0:
         #    self.clickButton('translate-up-button',np.absolute(self.clicksExecuteArray[4]),timeDeltaSameClicks)
@@ -87,7 +88,6 @@ class controlPanelClass():
         #    self.clickButton('translate-backward-button',np.absolute(self.clicksExecuteArray[6]),timeDeltaSameClicks)
         #else: 
         #    self.clickButton('translate-forward-button',np.absolute(self.clicksExecuteArray[6]),timeDeltaSameClicks)
-        print('skip clicks')
     def clickButton(self,buttonId,timesNum,timeDeltaSameClicks):
         self.buttonElement=browser.find_element_by_id(buttonId)
         for idx in range(timesNum):
@@ -118,7 +118,7 @@ waitAfterButtonsClickable=5
 
 #def main():
 #chromedriver needs to be copied to disk
-chromedriver = "E:\\Python\\chromedriver.exe"
+chromedriver = "E:\\MyProj\\chromedriver.exe"
 browser=webdriver.Chrome(chromedriver)
 #open chrome with the following address
 browser.get("https://iss-sim.spacex.com/")
@@ -134,11 +134,10 @@ wait.until(EC.element_to_be_clickable((By.ID, 'translate-up-button')))
 time.sleep(waitAfterButtonsClickable)
 print('<<<<<<<<<<<< Script is Ready! >>>>>>>>>>>>>')
 
-controlPanel=controlPanelClass() # init
- controlPanelClass
+controlPanel=controlPanelClass() # init controlPanelClass
 
 #The loop
-while 1
+while 1:
     print(".... Running the loop ....")
     controlPanel.readInstruments()
     controlPanel.calcClicksArray()
