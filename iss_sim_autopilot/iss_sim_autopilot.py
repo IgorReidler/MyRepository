@@ -40,13 +40,17 @@ class controlPanelClass():
         self.currentErrorArray[4]  =float(browser.find_element_by_xpath("//div[@id='y-range']/div[@class='distance']").text[:-1])
         self.currentErrorArray[5]  =float(browser.find_element_by_xpath("//div[@id='z-range']/div[@class='distance']").text[:-1])
         self.currentErrorArray[6]  =float(browser.find_element_by_xpath("//div[@id='range']/div[@class='rate']").text[:-1])
-        #Rotation Rates
+        #Rotation Rates read
         self.currentRateArray[0]  =float(browser.find_element_by_xpath("//div[@id='roll']/div[contains(@class, 'rate')]").text[:-3])
         self.currentRateArray[1]  =float(browser.find_element_by_xpath("//div[@id='pitch']/div[contains(@class, 'rate')]").text[:-3])
         self.currentRateArray[2]  =float(browser.find_element_by_xpath("//div[@id='yaw']/div[contains(@class, 'rate')]").text[:-3])
-        #Translation Rates
+        #Translation Rates read
         self.currentRateArray[6] = float(browser.find_element_by_xpath("//div[@id='rate']/div[contains(@class, 'rate')]").text[:-4])
-        
+        #Translation Rates calc
+
+        self.currentRateArray[4] = np.multiply(self.currentClicksArray[4],self.ratePerClickTranslation)
+        self.currentRateArray[5] = np.multiply(self.currentClicksArray[5],self.ratePerClickTranslation) #-0.01to account for gravity
+
     def calcClicksArray(self):
         #self.desiredRateArray=np.power(self.currentErrorArray,2) #for power law rate
         self.desiredRateArray=np.multiply(self.currentErrorArray,self.rateParamsArray)
@@ -54,7 +58,6 @@ class controlPanelClass():
         self.executeClicksArray=np.divide(self.deltaRateArray,self.ratePerClickArray)
         self.executeClicksArray=np.clip(self.executeClicksArray,-10,10)
         self.executeClicksArray=np.sign(self.executeClicksArray) * np.ceil(np.abs(self.executeClicksArray))      
-        #self.executeClicksArray=np.ceil(self.executeClicksArray) #was around
         self.executeClicksArray=self.executeClicksArray.astype(int)
         #print('calcClicksArray desided on =',self.executeClicksArray)
     def clickButtonsArray(self):
@@ -63,31 +66,31 @@ class controlPanelClass():
             self.clickButton('roll-right-button',np.absolute(self.executeClicksArray[0]),timeDeltaSameClicks)
         else: 
             self.clickButton('roll-left-button',np.absolute(self.executeClicksArray[0]),timeDeltaSameClicks)
-#
+
         if self.executeClicksArray[1]>0:
             self.clickButton('pitch-down-button',np.absolute(self.executeClicksArray[1]),timeDeltaSameClicks)
         else: 
             self.clickButton('pitch-up-button',np.absolute(self.executeClicksArray[1]),timeDeltaSameClicks)
-#
+
         if self.executeClicksArray[2]>0:
             self.clickButton('yaw-right-button',np.absolute(self.executeClicksArray[2]),timeDeltaSameClicks)
         else: 
             self.clickButton('yaw-left-button',np.absolute(self.executeClicksArray[2]),timeDeltaSameClicks)
 
-        #if self.executeClicksArray[4]>0:
-        #    self.clickButton('translate-right-button',np.absolute(self.executeClicksArray[5]),timeDeltaSameClicks)
-        #else: 
-        #    self.clickButton('translate-left-button',np.absolute(self.executeClicksArray[5]),timeDeltaSameClicks)
-##
-        #if self.executeClicksArray[5]>0:
-        #    self.clickButton('translate-up-button',np.absolute(self.executeClicksArray[4]),timeDeltaSameClicks)
-        #else: 
-        #    self.clickButton('translate-down-button',np.absolute(self.executeClicksArray[4]),timeDeltaSameClicks)
-##
-        #if self.executeClicksArray[6]>0:
-        #    self.clickButton('translate-backward-button',np.absolute(self.executeClicksArray[6]),timeDeltaSameClicks)
-        #else: 
-        #    self.clickButton('translate-forward-button',np.absolute(self.executeClicksArray[6]),timeDeltaSameClicks)
+        if self.executeClicksArray[4]>0:
+            self.clickButton('translate-right-button',np.absolute(self.executeClicksArray[5]),timeDeltaSameClicks)
+        else: 
+            self.clickButton('translate-left-button',np.absolute(self.executeClicksArray[5]),timeDeltaSameClicks)
+
+        if self.executeClicksArray[5]>0:
+            self.clickButton('translate-up-button',np.absolute(self.executeClicksArray[4]),timeDeltaSameClicks)
+        else: 
+            self.clickButton('translate-down-button',np.absolute(self.executeClicksArray[4]),timeDeltaSameClicks)
+
+        if self.executeClicksArray[6]>0:
+            self.clickButton('translate-forward-button',np.absolute(self.executeClicksArray[6]),timeDeltaSameClicks)
+        else: 
+            self.clickButton('translate-backward-button',np.absolute(self.executeClicksArray[6]),timeDeltaSameClicks)
     def clickButton(self,buttonId,timesNum,timeDeltaSameClicks):
         self.buttonElement=browser.find_element_by_id(buttonId)
         for idx in range(timesNum):
