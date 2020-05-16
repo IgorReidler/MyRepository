@@ -26,7 +26,7 @@ class controlPanelClass():
         self.ratePerClickTranslation=0.06
         #self.rateGravity=0.0065
         self.rotationRateParam=0.03
-        self.translationRateParam=0.015
+        self.translationRateParam=0.005 #was 0.015
         self.rateParamsArray=[self.rotationRateParam,self.rotationRateParam,self.rotationRateParam,-self.translationRateParam,-self.translationRateParam,-self.translationRateParam,-self.translationRateParam]
         self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.translationRateParam]
         #array [roll, pitch, yaw, x, y, z, range]
@@ -77,20 +77,20 @@ class controlPanelClass():
         else: 
             self.clickButton('yaw-left-button',np.absolute(self.executeClicksArray[2]),timeDeltaSameClicks)
 
-        if self.executeClicksArray[4]>0:
-            self.clickButton('translate-right-button',np.absolute(self.executeClicksArray[5]),timeDeltaSameClicks)
-        else: 
-            self.clickButton('translate-left-button',np.absolute(self.executeClicksArray[5]),timeDeltaSameClicks)
-
-        if self.executeClicksArray[5]>0:
-            self.clickButton('translate-up-button',np.absolute(self.executeClicksArray[4]),timeDeltaSameClicks)
-        else: 
-            self.clickButton('translate-down-button',np.absolute(self.executeClicksArray[4]),timeDeltaSameClicks)
-
-        if self.executeClicksArray[6]>0:
-            self.clickButton('translate-forward-button',np.absolute(self.executeClicksArray[6]),timeDeltaSameClicks)
-        else: 
-            self.clickButton('translate-backward-button',np.absolute(self.executeClicksArray[6]),timeDeltaSameClicks)
+        #if self.executeClicksArray[4]>0:
+        #    self.clickButton('translate-right-button',np.absolute(self.executeClicksArray[5]),timeDeltaSameClicks)
+        #else: 
+        #    self.clickButton('translate-left-button',np.absolute(self.executeClicksArray[5]),timeDeltaSameClicks)
+#
+        #if self.executeClicksArray[5]>0:
+        #    self.clickButton('translate-up-button',np.absolute(self.executeClicksArray[4]),timeDeltaSameClicks)
+        #else: 
+        #    self.clickButton('translate-down-button',np.absolute(self.executeClicksArray[4]),timeDeltaSameClicks)
+#
+        #if self.executeClicksArray[6]>0:
+        #    self.clickButton('translate-forward-button',np.absolute(self.executeClicksArray[6]),timeDeltaSameClicks)
+        #else: 
+        #    self.clickButton('translate-backward-button',np.absolute(self.executeClicksArray[6]),timeDeltaSameClicks)
     def clickButton(self,buttonId,timesNum,timeDeltaSameClicks):
         self.buttonElement=browser.find_element_by_id(buttonId)
         for idx in range(timesNum):
