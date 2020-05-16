@@ -17,6 +17,7 @@ class controlPanelClass():
         self.executeClicksArray=np.zeros(7)
         self.rateParamsArray=np.zeros(7)
         self.ratePerClickArray=np.zeros(7)
+        self.xyClicksParam=1 #was 1/3
 
         self.timeDeltaErrorUpdates=0
         self.timePrevErrorUpdate=0
@@ -53,13 +54,19 @@ class controlPanelClass():
 
     def calcClicksArray(self):
         #self.desiredRateArray=np.power(self.currentErrorArray,2) #for power law rate
-        self.desiredRateArray=np.multiply(self.currentErrorArray,self.rateParamsArray)
-        self.deltaRateArray=np.subtract(self.desiredRateArray,self.currentRateArray)
-        self.executeClicksArray=np.divide(self.deltaRateArray,self.ratePerClickArray)
-        self.executeClicksArray=np.clip(self.executeClicksArray,-10,10)
+        #rate calculation for rotations
+        self.desiredRateArray[0:3]=np.multiply(self.currentErrorArray[0:3],self.rateParamsArray[0:3])
+        self.deltaRateArray[0:3]=np.subtract(self.desiredRateArray[0:3],self.currentRateArray[0:3])
+        self.executeClicksArray[0:3]=np.divide(self.deltaRateArray[0:3],self.ratePerClickArray[0:3][0:3])
+        self.executeClicksArray[0:3]=np.clip(self.executeClicksArray[0:3],-10,10)
+        #direct calculation for x,y
+        self.desiredClicksArray[4:6]=np.ceil(np.multiply(self.currentErrorArray[4:6],-self.xyClicksParam))
+        self.executeClicksArray[4:6]=np.subtract(self.desiredClicksArray[4:6],self.currentClicksArray[4:6])
+        #general clip, ceil, int
         self.executeClicksArray=np.sign(self.executeClicksArray) * np.ceil(np.abs(self.executeClicksArray))      
         self.executeClicksArray=self.executeClicksArray.astype(int)
         #print('calcClicksArray desided on =',self.executeClicksArray)
+        print('a')
     def clickButtonsArray(self):
         self.currentClicksArray=np.add(self.currentClicksArray,self.executeClicksArray)
         if self.executeClicksArray[0]>0:
@@ -77,15 +84,15 @@ class controlPanelClass():
         else: 
             self.clickButton('yaw-left-button',np.absolute(self.executeClicksArray[2]),timeDeltaSameClicks)
 
-        #if self.executeClicksArray[4]>0:
-        #    self.clickButton('translate-right-button',np.absolute(self.executeClicksArray[5]),timeDeltaSameClicks)
-        #else: 
-        #    self.clickButton('translate-left-button',np.absolute(self.executeClicksArray[5]),timeDeltaSameClicks)
+        if self.executeClicksArray[4]>0:
+            self.clickButton('translate-right-button',np.absolute(self.executeClicksArray[4]),timeDeltaSameClicks*10)
+        else: 
+            self.clickButton('translate-left-button',np.absolute(self.executeClicksArray[4]),timeDeltaSameClicks*10)
 #
-        #if self.executeClicksArray[5]>0:
-        #    self.clickButton('translate-up-button',np.absolute(self.executeClicksArray[4]),timeDeltaSameClicks)
-        #else: 
-        #    self.clickButton('translate-down-button',np.absolute(self.executeClicksArray[4]),timeDeltaSameClicks)
+        if self.executeClicksArray[5]>0:
+            self.clickButton('translate-up-button',np.absolute(self.executeClicksArray[5]),timeDeltaSameClicks)
+        else: 
+            self.clickButton('translate-down-button',np.absolute(self.executeClicksArray[5]),timeDeltaSameClicks)
 #
         #if self.executeClicksArray[6]>0:
         #    self.clickButton('translate-forward-button',np.absolute(self.executeClicksArray[6]),timeDeltaSameClicks)
@@ -93,9 +100,9 @@ class controlPanelClass():
         #    self.clickButton('translate-backward-button',np.absolute(self.executeClicksArray[6]),timeDeltaSameClicks)
     def clickButton(self,buttonId,timesNum,timeDeltaSameClicks):
         self.buttonElement=browser.find_element_by_id(buttonId)
-        for idx in range(timesNum):
+        for idx in range(int(timesNum)):
             self.buttonElement.click()
-            #time.sleep(timeDeltaSameClicks) #wait between consecutive clicks
+            time.sleep(timeDeltaSameClicks) #wait between consecutive clicks
     def printInstruments(self):
         print(self.currentErrorArray)
         print(self.currentRateArray)
@@ -116,7 +123,7 @@ class controlPanelClass():
 #array [roll, pitch, yaw, x, y, z, range]
 
 #Parameters definition
-timeDeltaSameClicks=0.1 #was 0.01
+timeDeltaSameClicks=0.01 #was 0.01
 waitAfterButtonsClickable=5
 
 #def main():
