@@ -19,6 +19,8 @@ class controlPanelClass():
         self.ratePerClickArray=np.zeros(7)
         self.xyClicksParam=1 #was 1/3
 
+        self.calcRatesFlag=true #calculate translation rate from error (true) or from clicks (false)
+
         self.timeDeltaErrorUpdates=0
         self.timePrevErrorUpdate=0
         self.timeCurrentErrorUpdate=0
@@ -51,48 +53,46 @@ class controlPanelClass():
         #Translation Rates read
         self.currentRateArray[6] = float(browser.find_element_by_xpath("//div[@id='rate']/div[contains(@class, 'rate')]").text[:-4])
         #Translation Rates calc
-		
-        #Calculate y, z rates
-        if not self.firstreadInstruments:
-            self.timeDeltaErrorUpdates = self.timeCurrentErrorUpdate - self.timePrevErrorUpdate
-            print('time Delta = ',self.timeDeltaErrorUpdates)
-            self.currentRateArray[4]=np.subtract(self.currentErrorArray[4],self.previousErrorArray[4])
-            self.currentRateArray[4]=np.divide(self.currentRateArray[4],self.timeDeltaErrorUpdates)
-            print('Rate = ',self.currentRateArray[4])
-        self.firstreadInstruments=False
 
+        if self.calcRatesFlag:
+            #Calculate y, z rates
+            if not self.firstreadInstruments:
+                self.timeDeltaErrorUpdates = self.timeCurrentErrorUpdate - self.timePrevErrorUpdate
+                print('time Delta = ',self.timeDeltaErrorUpdates)
+                self.currentRateArray[4]=np.subtract(self.currentErrorArray[4],self.previousErrorArray[4])
+                self.currentRateArray[4]=np.divide(self.currentRateArray[4],self.timeDeltaErrorUpdates)
+                print('Rate = ',self.currentRateArray[4])
+            self.firstreadInstruments=False
+        else:
+            self.currentRateArray[4] = np.multiply(self.currentClicksArray[4],self.ratePerClickTranslation)
+            self.currentRateArray[5] = np.multiply(self.currentClicksArray[5],self.ratePerClickTranslation) #-0.01to account for gravity
 
-        self.currentRateArray[4] = np.multiply(self.currentClicksArray[4],self.ratePerClickTranslation)
-        self.currentRateArray[5] = np.multiply(self.currentClicksArray[5],self.ratePerClickTranslation) #-0.01to account for gravity
+    def calcClicksArray(self):
+        if self.calcRatesFlag:
+            #self.desiredRateArray=np.power(self.currentErrorArray,2)
+            self.desiredRateArray=np.multiply(self.currentErrorArray,self.rateParamsArray)
+            self.deltaRateArray=np.subtract(self.desiredRateArray,self.currentRateArray)
+            self.executeClicksArray=np.divide(self.deltaRateArray,self.ratePerClickArray)
+            self.executeClicksArray=np.clip(self.executeClicksArray,-10,10)
+            self.executeClicksArray=np.sign(self.executeClicksArray) * np.ceil(np.abs(self.executeClicksArray))      
+            #self.clicksExecuteArray=np.ceil(self.clicksExecuteArray) #was around
+            self.executeClicksArray=self.executeClicksArray.astype(int)
+            #print('calcClicksArray desided on =',self.clicksExecuteArray)
+        else:
+            #self.desiredRateArray=np.power(self.currentErrorArray,2) #for power law rate
+            #rate calculation for rotations
+            self.desiredRateArray[0:3]=np.multiply(self.currentErrorArray[0:3],self.rateParamsArray[0:3])
+            self.deltaRateArray[0:3]=np.subtract(self.desiredRateArray[0:3],self.currentRateArray[0:3])
+            self.executeClicksArray[0:3]=np.divide(self.deltaRateArray[0:3],self.ratePerClickArray[0:3][0:3])
+            self.executeClicksArray[0:3]=np.clip(self.executeClicksArray[0:3],-10,10)
+            #direct calculation for x,y
+            self.desiredClicksArray[4:6]=np.ceil(np.multiply(self.currentErrorArray[4:6],-self.xyClicksParam))
+            self.executeClicksArray[4:6]=np.subtract(self.desiredClicksArray[4:6],self.currentClicksArray[4:6])
+            #general clip, ceil, int
+            self.executeClicksArray=np.sign(self.executeClicksArray) * np.ceil(np.abs(self.executeClicksArray))      
+            self.executeClicksArray=self.executeClicksArray.astype(int)
+            #print('calcClicksArray desided on =',self.executeClicksArray)
 
-    def calcClicksArray_noTransRate(self):
-        #self.desiredRateArray=np.power(self.currentErrorArray,2) #for power law rate
-        #rate calculation for rotations
-        self.desiredRateArray[0:3]=np.multiply(self.currentErrorArray[0:3],self.rateParamsArray[0:3])
-        self.deltaRateArray[0:3]=np.subtract(self.desiredRateArray[0:3],self.currentRateArray[0:3])
-        self.executeClicksArray[0:3]=np.divide(self.deltaRateArray[0:3],self.ratePerClickArray[0:3][0:3])
-        self.executeClicksArray[0:3]=np.clip(self.executeClicksArray[0:3],-10,10)
-        #direct calculation for x,y
-        self.desiredClicksArray[4:6]=np.ceil(np.multiply(self.currentErrorArray[4:6],-self.xyClicksParam))
-        self.executeClicksArray[4:6]=np.subtract(self.desiredClicksArray[4:6],self.currentClicksArray[4:6])
-        #general clip, ceil, int
-        self.executeClicksArray=np.sign(self.executeClicksArray) * np.ceil(np.abs(self.executeClicksArray))      
-        self.executeClicksArray=self.executeClicksArray.astype(int)
-        #print('calcClicksArray desided on =',self.executeClicksArray)
-        print('a')
-		
-    def calcClicksArray_withTransRate(self):
-        #self.desiredRateArray=np.power(self.currentErrorArray,2)
-        self.desiredRateArray=np.multiply(self.currentErrorArray,self.rateParamsArray)
-        self.deltaRateArray=np.subtract(self.desiredRateArray,self.currentRateArray)
-        self.executeClicksArray=np.divide(self.deltaRateArray,self.ratePerClickArray)
-        self.executeClicksArray=np.clip(self.executeClicksArray,-10,10)
-        self.executeClicksArray=np.sign(self.executeClicksArray) * np.ceil(np.abs(self.executeClicksArray))      
-        #self.clicksExecuteArray=np.ceil(self.clicksExecuteArray) #was around
-        self.executeClicksArray=self.executeClicksArray.astype(int)
-        #print('calcClicksArray desided on =',self.clicksExecuteArray)
-		
-		
     def clickButtonsArray(self):
         self.currentClicksArray=np.add(self.currentClicksArray,self.executeClicksArray)
         if self.executeClicksArray[0]>0:
@@ -175,9 +175,9 @@ controlPanel=controlPanelClass() # init controlPanelClass
 #The loop
 while 1:
     print('.... Running the loop ....')
-    print('TheLoop: reading instruments ..')
+    #print('TheLoop: reading instruments ..')
     controlPanel.readInstruments()
-    controlPanel.calcClicksArray_withTransRate()
+    controlPanel.calcClicksArray()
     print('The loop: current clicks = ',controlPanel.currentClicksArray)
     print('TheLoop: executing clicks = ',controlPanel.executeClicksArray)
     controlPanel.clickButtonsArray()
