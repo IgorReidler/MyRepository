@@ -19,7 +19,7 @@ class controlPanelClass():
         self.ratePerClickArray=np.zeros(7)
         self.xyClicksParam=1 #was 1/3
 
-        self.calcRatesFlag=true #calculate translation rate from error (true) or from clicks (false)
+        self.calcRatesFlag=1 #calculate translation rate from error (true) or from clicks (false)
 
         self.timeDeltaErrorUpdates=0
         self.timePrevErrorUpdate=0
@@ -29,7 +29,7 @@ class controlPanelClass():
         self.ratePerClickTranslation=0.06
         #self.rateGravity=0.0065
         self.rotationRateParam=0.03
-        self.translationRateParam=0.005 #was 0.015
+        self.translationRateParam=0.02 #was 0.015
         self.rateParamsArray=[self.rotationRateParam,self.rotationRateParam,self.rotationRateParam,-self.translationRateParam,-self.translationRateParam,-self.translationRateParam,-self.translationRateParam]
         self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.translationRateParam]
         #array [roll, pitch, yaw, x, y, z, range]
@@ -58,10 +58,8 @@ class controlPanelClass():
             #Calculate y, z rates
             if not self.firstreadInstruments:
                 self.timeDeltaErrorUpdates = self.timeCurrentErrorUpdate - self.timePrevErrorUpdate
-                print('time Delta = ',self.timeDeltaErrorUpdates)
                 self.currentRateArray[4]=np.subtract(self.currentErrorArray[4],self.previousErrorArray[4])
                 self.currentRateArray[4]=np.divide(self.currentRateArray[4],self.timeDeltaErrorUpdates)
-                print('Rate = ',self.currentRateArray[4])
             self.firstreadInstruments=False
         else:
             self.currentRateArray[4] = np.multiply(self.currentClicksArray[4],self.ratePerClickTranslation)
@@ -120,10 +118,10 @@ class controlPanelClass():
         else: 
             self.clickButton('translate-down-button',np.absolute(self.executeClicksArray[5]),timeDeltaSameClicks)
 #
-        #if self.executeClicksArray[6]>0:
-        #    self.clickButton('translate-forward-button',np.absolute(self.executeClicksArray[6]),timeDeltaSameClicks)
-        #else: 
-        #    self.clickButton('translate-backward-button',np.absolute(self.executeClicksArray[6]),timeDeltaSameClicks)
+        if self.executeClicksArray[6]>0:
+            self.clickButton('translate-forward-button',np.absolute(self.executeClicksArray[6]),timeDeltaSameClicks)
+        else: 
+            self.clickButton('translate-backward-button',np.absolute(self.executeClicksArray[6]),timeDeltaSameClicks)
     def clickButton(self,buttonId,timesNum,timeDeltaSameClicks):
         self.buttonElement=browser.find_element_by_id(buttonId)
         for idx in range(int(timesNum)):
@@ -178,9 +176,16 @@ while 1:
     #print('TheLoop: reading instruments ..')
     controlPanel.readInstruments()
     controlPanel.calcClicksArray()
-    print('The loop: current clicks = ',controlPanel.currentClicksArray)
-    print('TheLoop: executing clicks = ',controlPanel.executeClicksArray)
+    
+    print('The loop: current error  = ',controlPanel.currentErrorArray[4])
+    print('The loop: current rate   = ',str.format('{0:.4f}', controlPanel.currentRateArray[4]))
+    print('The loop: delta          = ',str.format('{0:.2f}', controlPanel.timeDeltaErrorUpdates))
+    print('The Loop: desired clicks = ',controlPanel.executeClicksArray[4])
+    #print('The loop: current clicks = ',controlPanel.currentClicksArray[4])
     controlPanel.clickButtonsArray()
+    time.sleep(3)
+
+
     #print('desiredRateArray = currentErrorArray * rateParamsArray')
     #print(controlPanel.desiredRateArray[4],'=',controlPanel.currentErrorArray[4],'*',controlPanel.rateParamsArray[4])
     #print('deltaRateArray = desiredRateArray - currentRateArray')
