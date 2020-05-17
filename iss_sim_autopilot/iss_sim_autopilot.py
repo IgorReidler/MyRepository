@@ -5,6 +5,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
+#TODO: max clicks should be total, not per executeClicks
+
+
 class controlPanelClass(): 
     def __init__(self): 
         self.currentErrorArray=np.zeros(7)
@@ -29,7 +32,7 @@ class controlPanelClass():
         self.ratePerClickTranslation=0.06
         #self.rateGravity=0.0065
         self.rotationRateParam=0.03
-        self.translationRateParam=0.02 #was 0.015
+        self.translationRateParam=0.06 #was 0.015
         self.rateParamsArray=[self.rotationRateParam,self.rotationRateParam,self.rotationRateParam,-self.translationRateParam,-self.translationRateParam,-self.translationRateParam,-self.translationRateParam]
         self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.translationRateParam]
         #array [roll, pitch, yaw, x, y, z, range]
@@ -58,8 +61,8 @@ class controlPanelClass():
             #Calculate y, z rates
             if not self.firstreadInstruments:
                 self.timeDeltaErrorUpdates = self.timeCurrentErrorUpdate - self.timePrevErrorUpdate
-                self.currentRateArray[4]=np.subtract(self.currentErrorArray[4],self.previousErrorArray[4])
-                self.currentRateArray[4]=np.divide(self.currentRateArray[4],self.timeDeltaErrorUpdates)
+                self.currentRateArray[4:6]=np.subtract(self.currentErrorArray[4:6],self.previousErrorArray[4:6])
+                self.currentRateArray[4:6]=np.divide(self.currentRateArray[4:6],self.timeDeltaErrorUpdates)
             self.firstreadInstruments=False
         else:
             self.currentRateArray[4] = np.multiply(self.currentClicksArray[4],self.ratePerClickTranslation)
@@ -177,11 +180,12 @@ while 1:
     controlPanel.readInstruments()
     controlPanel.calcClicksArray()
     
-    print('The loop: current error  = ',controlPanel.currentErrorArray[4])
-    print('The loop: current rate   = ',str.format('{0:.4f}', controlPanel.currentRateArray[4]))
-    print('The loop: delta          = ',str.format('{0:.2f}', controlPanel.timeDeltaErrorUpdates))
-    print('The Loop: desired clicks = ',controlPanel.executeClicksArray[4])
-    #print('The loop: current clicks = ',controlPanel.currentClicksArray[4])
+    print('The loop: current error  = ',controlPanel.currentErrorArray[4:6])
+    print('The loop: current rate   = ',str.format('{0:.4f}', controlPanel.currentRateArray[4]),' and ',str.format('{0:.4f}', controlPanel.currentRateArray[5]))
+    print('The loop: desired rate   = ',str.format('{0:.4f}', controlPanel.desiredRateArray[4]),' and ',str.format('{0:.4f}', controlPanel.desiredRateArray[5]))
+    print('The loop: time delta     = ',str.format('{0:.2f}', controlPanel.timeDeltaErrorUpdates))
+    print('The Loop: desired clicks = ',controlPanel.executeClicksArray[4:6])
+    print('The loop: current clicks = ',controlPanel.currentClicksArray[4:6])
     controlPanel.clickButtonsArray()
     time.sleep(3)
 
