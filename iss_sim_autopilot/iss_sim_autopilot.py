@@ -20,8 +20,11 @@ class controlPanelClass():
         self.executeClicksArray=np.zeros(7)
         self.rateParamsArray=np.zeros(7)
         self.ratePerClickArray=np.zeros(7)
-        self.xyClicksParam=1 #was 1/3
+        self.jsArray=['a','a','a','a','a','a','a']
+        #self.jsArray = np.empty([7], dtype="S7")
 
+        self.xyClicksParam=1 #was 1/3
+        
         self.calcRatesFlag=1 #calculate translation rate from error (true) or from clicks (false)
 
         self.timeDeltaErrorUpdates=0
@@ -98,35 +101,51 @@ class controlPanelClass():
 
     def clickButtonsArray(self):
         self.currentClicksArray=np.add(self.currentClicksArray,self.executeClicksArray)
-        if self.executeClicksArray[0]>0:
-            self.clickButton('roll-right-button',np.absolute(self.executeClicksArray[0]),timeDeltaSameClicks)
+        if self.executeClicksArray[0]>=0:
+            #self.clickButton('roll-right-button',np.absolute(self.executeClicksArray[0]),timeDeltaSameClicks)
+            self.jsArray[0]='rollRight();'
         else: 
-            self.clickButton('roll-left-button',np.absolute(self.executeClicksArray[0]),timeDeltaSameClicks)
+            #self.clickButton('roll-left-button',np.absolute(self.executeClicksArray[0]),timeDeltaSameClicks)
+            self.jsArray[0]='rollLeft();'
 
-        if self.executeClicksArray[1]>0:
-            self.clickButton('pitch-down-button',np.absolute(self.executeClicksArray[1]),timeDeltaSameClicks)
+        if self.executeClicksArray[1]>=0:
+            #self.clickButton('pitch-down-button',np.absolute(self.executeClicksArray[1]),timeDeltaSameClicks)
+            self.jsArray[1]='pitchDown();'
         else: 
-            self.clickButton('pitch-up-button',np.absolute(self.executeClicksArray[1]),timeDeltaSameClicks)
-
-        if self.executeClicksArray[2]>0:
-            self.clickButton('yaw-right-button',np.absolute(self.executeClicksArray[2]),timeDeltaSameClicks)
+            #self.clickButton('pitch-up-button',np.absolute(self.executeClicksArray[1]),timeDeltaSameClicks)
+            self.jsArray[1]='pitchUp();'
+        if self.executeClicksArray[2]>=0:
+            #self.clickButton('yaw-right-button',np.absolute(self.executeClicksArray[2]),timeDeltaSameClicks)
+            self.jsArray[2]='yawRight();'
         else: 
-            self.clickButton('yaw-left-button',np.absolute(self.executeClicksArray[2]),timeDeltaSameClicks)
-
-        if self.executeClicksArray[4]>0:
-            self.clickButton('translate-right-button',np.absolute(self.executeClicksArray[4]),timeDeltaSameClicks*10)
+            #self.clickButton('yaw-left-button',np.absolute(self.executeClicksArray[2]),timeDeltaSameClicks)
+            self.jsArray[2]='yawLeft();'
+        self.jsArray[3]='' #to fill the unused x translation
+        if self.executeClicksArray[4]>=0:
+            #self.clickButton('translate-right-button',np.absolute(self.executeClicksArray[4]),timeDeltaSameClicks*10)
+            self.jsArray[4]='translateRight();'
         else: 
-            self.clickButton('translate-left-button',np.absolute(self.executeClicksArray[4]),timeDeltaSameClicks*10)
+           # self.clickButton('translate-left-button',np.absolute(self.executeClicksArray[4]),timeDeltaSameClicks*10)
+            self.jsArray[4]='translateLeft();'
+#       
+        if self.executeClicksArray[5]>=0:
+           # self.clickButton('translate-up-button',np.absolute(self.executeClicksArray[5]),timeDeltaSameClicks)
+            self.jsArray[5]='translateUp();'
+        else: 
+           # self.clickButton('translate-down-button',np.absolute(self.executeClicksArray[5]),timeDeltaSameClicks)
+            self.jsArray[5]='translateDown();'
 #
-        if self.executeClicksArray[5]>0:
-            self.clickButton('translate-up-button',np.absolute(self.executeClicksArray[5]),timeDeltaSameClicks)
+        if self.executeClicksArray[6]>=0:
+          #  self.clickButton('translate-forward-button',np.absolute(self.executeClicksArray[6]),timeDeltaSameClicks)
+            self.jsArray[6]='translateForward();'
         else: 
-            self.clickButton('translate-down-button',np.absolute(self.executeClicksArray[5]),timeDeltaSameClicks)
-#
-        if self.executeClicksArray[6]>0:
-            self.clickButton('translate-forward-button',np.absolute(self.executeClicksArray[6]),timeDeltaSameClicks)
-        else: 
-            self.clickButton('translate-backward-button',np.absolute(self.executeClicksArray[6]),timeDeltaSameClicks)
+          #  self.clickButton('translate-backward-button',np.absolute(self.executeClicksArray[6]),timeDeltaSameClicks)
+            self.jsArray[6]='translateBackward();'
+        # following replaces clickButton() function
+        self.executeClicksArray=np.absolute(self.executeClicksArray)
+        self.jsExecuteString=(self.jsArray[0])*self.executeClicksArray[0]+(self.jsArray[1])*self.executeClicksArray[1]+(self.jsArray[2])*self.executeClicksArray[2]+(self.jsArray[3])*self.executeClicksArray[3]+(self.jsArray[4])*self.executeClicksArray[4]+(self.jsArray[5])*self.executeClicksArray[5]+(self.jsArray[6])*self.executeClicksArray[6]
+        print(self.jsExecuteString)
+        browser.execute_script(self.jsExecuteString)
     def clickButton(self,buttonId,timesNum,timeDeltaSameClicks):
         self.buttonElement=browser.find_element_by_id(buttonId)
         for idx in range(int(timesNum)):
