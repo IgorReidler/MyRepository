@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
 #TODO: max clicks should be total, not per executeClicks
-
+#TODO: decisions log
 
 class controlPanelClass(): 
     def __init__(self): 
@@ -30,7 +30,7 @@ class controlPanelClass():
         self.firstreadInstruments=True
         self.ratePerClickRotation=0.1
         self.ratePerClickTranslation=0.06
-        #self.rateGravity=0.0065
+        self.rateDeltaGravity=0.0098
         self.rotationRateParam=0.03
         self.translationRateParamXY=0.06 #was 0.015
         self.translationRateParamZ=0.015 #was 0.015
@@ -65,14 +65,15 @@ class controlPanelClass():
                 self.currentRateArray[4:6]=np.subtract(self.currentErrorArray[4:6],self.previousErrorArray[4:6])
                 self.currentRateArray[4:6]=np.divide(self.currentRateArray[4:6],self.timeDeltaErrorUpdates)
             self.firstreadInstruments=False
-        else:
-            self.currentRateArray[4] = np.multiply(self.currentClicksArray[4],self.ratePerClickTranslation)
-            self.currentRateArray[5] = np.multiply(self.currentClicksArray[5],self.ratePerClickTranslation) #-0.01to account for gravity
+        #else:
+        #    self.currentRateArray[4] = np.multiply(self.currentClicksArray[4],self.ratePerClickTranslation)
+        #    self.currentRateArray[5] = np.multiply(self.currentClicksArray[5],self.ratePerClickTranslation) #-0.01to account for gravity
 
     def calcClicksArray(self):
         if self.calcRatesFlag:
             #self.desiredRateArray=np.power(self.currentErrorArray,2)
             self.desiredRateArray=np.multiply(self.currentErrorArray,self.rateParamsArray)
+            self.desiredRateArray[5]=self.desiredRateArray[5]+self.rateDeltaGravity #Gravity correction
             self.deltaRateArray=np.subtract(self.desiredRateArray,self.currentRateArray)
             self.executeClicksArray=np.divide(self.deltaRateArray,self.ratePerClickArray)
             self.executeClicksArray=np.clip(self.executeClicksArray,-10,10)
@@ -80,20 +81,20 @@ class controlPanelClass():
             #self.clicksExecuteArray=np.ceil(self.clicksExecuteArray) #was around
             self.executeClicksArray=self.executeClicksArray.astype(int)
             #print('calcClicksArray desided on =',self.clicksExecuteArray)
-        else:
-            #self.desiredRateArray=np.power(self.currentErrorArray,2) #for power law rate
-            #rate calculation for rotations
-            self.desiredRateArray[0:3]=np.multiply(self.currentErrorArray[0:3],self.rateParamsArray[0:3])
-            self.deltaRateArray[0:3]=np.subtract(self.desiredRateArray[0:3],self.currentRateArray[0:3])
-            self.executeClicksArray[0:3]=np.divide(self.deltaRateArray[0:3],self.ratePerClickArray[0:3][0:3])
-            self.executeClicksArray[0:3]=np.clip(self.executeClicksArray[0:3],-10,10)
-            #direct calculation for x,y
-            self.desiredClicksArray[4:6]=np.ceil(np.multiply(self.currentErrorArray[4:6],-self.xyClicksParam))
-            self.executeClicksArray[4:6]=np.subtract(self.desiredClicksArray[4:6],self.currentClicksArray[4:6])
-            #general clip, ceil, int
-            self.executeClicksArray=np.sign(self.executeClicksArray) * np.ceil(np.abs(self.executeClicksArray))      
-            self.executeClicksArray=self.executeClicksArray.astype(int)
-            #print('calcClicksArray desided on =',self.executeClicksArray)
+        #else:
+        #    #self.desiredRateArray=np.power(self.currentErrorArray,2) #for power law rate
+        #    #rate calculation for rotations
+        #    self.desiredRateArray[0:3]=np.multiply(self.currentErrorArray[0:3],self.rateParamsArray[0:3])
+        #    self.deltaRateArray[0:3]=np.subtract(self.desiredRateArray[0:3],self.currentRateArray[0:3])
+        #    self.executeClicksArray[0:3]=np.divide(self.deltaRateArray[0:3],self.ratePerClickArray[0:3][0:3])
+        #    self.executeClicksArray[0:3]=np.clip(self.executeClicksArray[0:3],-10,10)
+        #    #direct calculation for x,y
+        #    self.desiredClicksArray[4:6]=np.ceil(np.multiply(self.currentErrorArray[4:6],-self.xyClicksParam))
+        #    self.executeClicksArray[4:6]=np.subtract(self.desiredClicksArray[4:6],self.currentClicksArray[4:6])
+        #    #general clip, ceil, int
+        #    self.executeClicksArray=np.sign(self.executeClicksArray) * np.ceil(np.abs(self.executeClicksArray))      
+        #    self.executeClicksArray=self.executeClicksArray.astype(int)
+        #    #print('calcClicksArray desided on =',self.executeClicksArray)
 
     def clickButtonsArray(self):
         self.currentClicksArray=np.add(self.currentClicksArray,self.executeClicksArray)
@@ -152,7 +153,7 @@ class controlPanelClass():
 
 #Parameters definition
 timeDeltaSameClicks=0.00 #was 0.01
-waitAfterButtonsClickable=3
+waitAfterButtonsClickable=5
 
 #def main():
 #chromedriver needs to be copied to disk
@@ -164,7 +165,12 @@ browser.get("https://iss-sim.spacex.com/")
 #wait for Begin button
 wait = WebDriverWait(browser, 100)
 elem = wait.until(EC.element_to_be_clickable((By.ID, 'begin-button')))
-print('Click the large "Begin" button to continue!')
+print('Clicked the large "Begin" button')
+elem.click()
+#print('Click the large "Begin" button to continue!')
+
+
+
 
 #wait for translate-up-button to become clickable
 wait = WebDriverWait(browser, 1000)
@@ -188,8 +194,7 @@ while 1:
     print('The Loop: desired clicks = ',controlPanel.executeClicksArray[4:6])
     print('The loop: current clicks = ',controlPanel.currentClicksArray[4:6])
     controlPanel.clickButtonsArray()
-    time.sleep(3)
-
+    #time.sleep(3)
 
     #print('desiredRateArray = currentErrorArray * rateParamsArray')
     #print(controlPanel.desiredRateArray[4],'=',controlPanel.currentErrorArray[4],'*',controlPanel.rateParamsArray[4])
