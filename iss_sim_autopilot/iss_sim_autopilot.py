@@ -32,9 +32,10 @@ class controlPanelClass():
         self.ratePerClickTranslation=0.06
         #self.rateGravity=0.0065
         self.rotationRateParam=0.03
-        self.translationRateParam=0.06 #was 0.015
-        self.rateParamsArray=[self.rotationRateParam,self.rotationRateParam,self.rotationRateParam,-self.translationRateParam,-self.translationRateParam,-self.translationRateParam,-self.translationRateParam]
-        self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.translationRateParam]
+        self.translationRateParamXY=0.06 #was 0.015
+        self.translationRateParamZ=0.015 #was 0.015
+        self.rateParamsArray=[self.rotationRateParam,self.rotationRateParam,self.rotationRateParam,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamZ]
+        self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.translationRateParamZ]
         #array [roll, pitch, yaw, x, y, z, range]
 
     def readInstruments(self):
@@ -129,7 +130,7 @@ class controlPanelClass():
         self.buttonElement=browser.find_element_by_id(buttonId)
         for idx in range(int(timesNum)):
             self.buttonElement.click()
-            time.sleep(timeDeltaSameClicks) #wait between consecutive clicks
+            #time.sleep(timeDeltaSameClicks) #wait between consecutive clicks
     def printInstruments(self):
         print(self.currentErrorArray)
         print(self.currentRateArray)
@@ -150,8 +151,8 @@ class controlPanelClass():
 #array [roll, pitch, yaw, x, y, z, range]
 
 #Parameters definition
-timeDeltaSameClicks=0.01 #was 0.01
-waitAfterButtonsClickable=5
+timeDeltaSameClicks=0.00 #was 0.01
+waitAfterButtonsClickable=3
 
 #def main():
 #chromedriver needs to be copied to disk
