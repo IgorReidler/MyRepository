@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
 #TODO: max clicks should be total, not per executeClicks
+#TODO: motionVector
 #TODO: decisions log
 
 class controlPanelClass(): 
@@ -71,6 +72,18 @@ class controlPanelClass():
         
         #self.currentRateArray[2]  =float(browser.find_element_by_xpath("//div[@id='yaw']/div[contains(@class, 'rate')]").text[:-3])
         self.currentRateArray[2] = browser.execute_script("return rateRotationY/10;")
+        
+        #not working       
+        #self.xyzMotionVector=browser.execute_script("return motionVector")
+        #self.currentRateArray[3]=self.xyzMotionVector['x']
+        #self.currentRateArray[4]=self.xyzMotionVector['y']
+        #self.currentRateArray[5]=self.xyzMotionVector['z']
+        ##self.currentRateArray[3] = browser.execute_script("return motionVector")['x']*60
+        #print('X rate JS = ',self.currentRateArray[3])
+        ##self.currentRateArray[4] = browser.execute_script("return motionVector")['y']*60
+        #print('X rate JS = ',self.currentRateArray[4])
+        ##self.currentRateArray[5] = browser.execute_script("return motionVector")['z']*60
+        #print('X rate JS = ',self.currentRateArray[5])
 
         #Translation Rates read
         #self.currentRateArray[6] = float(browser.find_element_by_xpath("//div[@id='rate']/div[contains(@class, 'rate')]").text[:-4])
@@ -85,7 +98,9 @@ class controlPanelClass():
         self.firstreadInstruments=False
         self.elapsedTime1=time.time()-self.readInstrumentsTimeStart
         print('readInstruments',self.elapsedTime1)
-
+        print('X rate JS = ',self.currentRateArray[3])
+        print('Y rate JS = ',self.currentRateArray[4])
+        print('Z rate JS = ',self.currentRateArray[5])
     def calcClicksArray(self):
         #self.desiredRateArray=np.power(self.currentErrorArray,2)
         self.desiredRateArray=np.multiply(self.currentErrorArray,self.rateParamsArray)
@@ -166,13 +181,8 @@ controlPanel=controlPanelClass() # init controlPanelClass
 #The loop
 while 1:
     print('.... Running the loop ....')
-    time1=time.time()
     #print('TheLoop: reading instruments ..')
     controlPanel.readInstruments()
-    elapsedTime1=time.time()-time1
-    print('time1',elapsedTime1)
-
-    time2=time.time()
     print('The loop: current error  = ',controlPanel.currentErrorArray[4:6])
     print('The loop: current rate   = ',str.format('{0:.4f}', controlPanel.currentRateArray[4]),' and ',str.format('{0:.4f}', controlPanel.currentRateArray[5]))
     print('The loop: desired rate   = ',str.format('{0:.4f}', controlPanel.desiredRateArray[4]),' and ',str.format('{0:.4f}', controlPanel.desiredRateArray[5]))
@@ -180,13 +190,7 @@ while 1:
     print('The Loop: desired clicks = ',controlPanel.executeClicksArray[4:6])
     print('The loop: current clicks = ',controlPanel.currentClicksArray[4:6])
     controlPanel.calcClicksArray()
-    elapsedTime2=time.time()-time2
-    print('time2',elapsedTime2)
-
-    time3=time.time()
     controlPanel.clickButtonsArray()
-    elapsedTime3=time.time()-time3
-    print('time3',elapsedTime3)
     #time.sleep(3)
 
     #print('desiredRateArray = currentErrorArray * rateParamsArray')
