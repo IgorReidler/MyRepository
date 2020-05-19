@@ -22,7 +22,7 @@ class controlPanelClass():
         self.executeClicksArray=np.zeros(7)
         self.rateParamsArray=np.zeros(7)
         self.ratePerClickArray=np.zeros(7)
-        self.jsArray=['a','a','a','a','a','a','a']
+        self.jsArray=['a','a','a','a','a','a','a'] #init js array
         self.rateParamsMaxArray=[1,1,1,1,1,1,2]
         self.rateParamsMinArray=[-1,-1,-1,-1,-1,-1,-2]
         #self.jsArray = np.empty([7], dtype="S7")
@@ -40,8 +40,8 @@ class controlPanelClass():
         self.ratePerClickTranslationZ=0.045
         self.rateDeltaGravity=0.0098
         self.rotationRateParam=0.03
-        self.translationRateParamXY=0.06 #was 0.015
-        self.translationRateParamZ=0.045 #was 0.015
+        self.translationRateParamXY=0.06 #last success with 0.06
+        self.translationRateParamZ=0.03 #last success with 0.045
         self.rateParamsArray=[self.rotationRateParam,self.rotationRateParam,self.rotationRateParam,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamZ]
         self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.ratePerClickTranslationZ]
         #array [roll, pitch, yaw, x, y, z, range]
@@ -77,7 +77,7 @@ class controlPanelClass():
         #self.currentRateArray[2]  =float(browser.find_element_by_xpath("//div[@id='yaw']/div[contains(@class, 'rate')]").text[:-3])
         self.currentRateArray[2] = browser.execute_script("return rateRotationY/10;")
         
-        #not working       
+        #not working - get rates 3:5 fro js      
         #self.xyzMotionVector=browser.execute_script("return motionVector")
         #self.currentRateArray[3]=self.xyzMotionVector['x']
         #self.currentRateArray[4]=self.xyzMotionVector['y']
@@ -113,7 +113,7 @@ class controlPanelClass():
         self.deltaRateArray=np.subtract(self.desiredRateArray,self.currentRateArray)
         self.executeClicksArray=np.divide(self.deltaRateArray,self.ratePerClickArray)
         #self.executeClicksArray=np.clip(self.executeClicksArray,-10,10) #replaced by rate clipping
-        self.executeClicksArray=np.sign(self.executeClicksArray) * np.ceil(np.abs(self.executeClicksArray))      
+        self.executeClicksArray=np.sign(self.executeClicksArray) * np.ceil(np.abs(self.executeClicksArray))
         #self.clicksExecuteArray=np.ceil(self.clicksExecuteArray) #was around
         self.executeClicksArray=self.executeClicksArray.astype(int)
         #self.elapsedTime=self.readInstrumentsTimeEnd=time.time()-self.readInstrumentsTimeStart
@@ -188,12 +188,12 @@ while 1:
     print('.... Running the loop ....')
     #print('TheLoop: reading instruments ..')
     controlPanel.readInstruments()
-    print('The loop: current error  = ',controlPanel.currentErrorArray[4:6])
-    print('The loop: current rate   = ',str.format('{0:.4f}', controlPanel.currentRateArray[4]),' and ',str.format('{0:.4f}', controlPanel.currentRateArray[5]))
-    print('The loop: desired rate   = ',str.format('{0:.4f}', controlPanel.desiredRateArray[4]),' and ',str.format('{0:.4f}', controlPanel.desiredRateArray[5]))
-    print('The loop: time delta     = ',str.format('{0:.2f}', controlPanel.timeDeltaErrorUpdates))
-    print('The Loop: desired clicks = ',controlPanel.executeClicksArray[4:6])
-    print('The loop: current clicks = ',controlPanel.currentClicksArray[4:6])
+    print('Current error  = ',controlPanel.currentErrorArray)
+    print('Current rate   = ',controlPanel.currentRateArray)
+    print('Desired rate   = ',controlPanel.desiredRateArray)
+    #print('Time delta     = ',str.format('{0:.2f}', controlPanel.timeDeltaErrorUpdates))
+    print('Desired clicks = ',controlPanel.executeClicksArray)
+    print('Current clicks = ',controlPanel.currentClicksArray)
     controlPanel.calcClicksArray()
     controlPanel.clickButtonsArray()
     #time.sleep(3)
