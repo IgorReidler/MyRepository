@@ -104,10 +104,10 @@ class controlPanelClass():
             self.currentRateArray[4:6]=np.divide(self.currentRateArray[4:6],self.timeDeltaErrorUpdates)
         self.firstreadInstruments=False
         self.elapsedTime1=time.time()-self.readInstrumentsTimeStart
-        print('readInstruments',self.elapsedTime1)
-        print('X rate JS = ',self.currentRateArray[3])
-        print('Y rate JS = ',self.currentRateArray[4])
-        print('Z rate JS = ',self.currentRateArray[5])
+        #print('readInstruments',self.elapsedTime1)
+        #print('X rate JS = ',self.currentRateArray[3])
+        #print('Y rate JS = ',self.currentRateArray[4])
+        #print('Z rate JS = ',self.currentRateArray[5])
     def calcClicksArray(self):
         #self.desiredRateArray=np.power(self.currentErrorArray,2)
         self.desiredRateArray=np.multiply(self.currentErrorArray,self.rateParamsArray)
@@ -204,7 +204,7 @@ while 1:
     ##print('Time delta     = ',str.format('{0:.2f}', controlPanel.timeDeltaErrorUpdates))
     #print('Desired clicks = ',controlPanel.executeClicksArray)
     #print('Current clicks = ',controlPanel.currentClicksArray)
-    print('Executing clicks = ',controlPanel.executeClicksArray)
+    #print('Executing clicks = ',controlPanel.executeClicksArray)
     controlPanel.calcClicksArray()
     controlPanel.clickButtonsArray()
     #time.sleep(3)
