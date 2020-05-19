@@ -38,10 +38,10 @@ class controlPanelClass():
         self.ratePerClickRotation=0.1
         self.ratePerClickTranslation=0.06
         self.ratePerClickTranslationZ=0.045
-        self.rateDeltaGravity=0.0098
+        self.rateDeltaGravity=0.0000 #was 0.0098
         self.rotationRateParam=0.03
         self.translationRateParamXY=0.06 #last success with 0.06
-        self.translationRateParamZ=0.03 #last success with 0.045
+        self.translationRateParamZ=0.045  #last success with 0.045
         self.rateParamsArray=[self.rotationRateParam,self.rotationRateParam,self.rotationRateParam,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamZ]
         self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.ratePerClickTranslationZ]
         #array [roll, pitch, yaw, x, y, z, range]
@@ -118,6 +118,13 @@ class controlPanelClass():
         self.executeClicksArray=self.executeClicksArray.astype(int)
         #self.elapsedTime=self.readInstrumentsTimeEnd=time.time()-self.readInstrumentsTimeStart
         #print(self.elapsedTime)
+
+        #Big red dock button
+        self.currentErrorArrayAbs=np.absolute(self.currentErrorArray)
+        if self.currentErrorArrayAbs[0]<0.1 and self.currentErrorArrayAbs[1]<0.1 and self.currentErrorArrayAbs[2]<0.1 and self.currentErrorArrayAbs[3]<0.6 and self.currentErrorArrayAbs[4]<0.2 and self.currentErrorArrayAbs[5]<0.2:
+              self.executeClicksArray=[0,0,0,0,0,0,10]
+              print('Big red dock button activated!!!!!!!!!!!!!!!!!!!')
+
     def clickButtonsArray(self):
         self.currentClicksArray=np.add(self.currentClicksArray,self.executeClicksArray)
         if self.executeClicksArray[0]>=0:
