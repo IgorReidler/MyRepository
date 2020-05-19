@@ -123,10 +123,10 @@ class controlPanelClass():
         #print(self.elapsedTime)
 
         #Big red dock button
-        self.currentErrorArrayAbs=np.absolute(self.currentErrorArray)
-        if self.currentErrorArrayAbs[0]<0.1 and self.currentErrorArrayAbs[1]<0.1 and self.currentErrorArrayAbs[2]<0.1 and self.currentErrorArrayAbs[3]<0.6 and self.currentErrorArrayAbs[4]<0.2 and self.currentErrorArrayAbs[5]<0.2:
-              self.executeClicksArray=[0,0,0,0,0,0,3]
-              print('Big red dock button activated!!!!!!!!!!!!!!!!!!!')
+        #self.currentErrorArrayAbs=np.absolute(self.currentErrorArray)
+        #if self.currentErrorArrayAbs[0]<0.1 and self.currentErrorArrayAbs[1]<0.1 and self.currentErrorArrayAbs[2]<0.1 and self.currentErrorArrayAbs[3]<0.6 and self.currentErrorArrayAbs[4]<0.2 and self.currentErrorArrayAbs[5]<0.2:
+        #      self.executeClicksArray=[0,0,0,0,0,0,3]
+        #      print('Big red dock button activated!!!!!!!!!!!!!!!!!!!')
 
     def clickButtonsArray(self):
         self.currentClicksArray=np.add(self.currentClicksArray,self.executeClicksArray)
@@ -195,15 +195,16 @@ controlPanel=controlPanelClass() # init controlPanelClass
 
 #The loop
 while 1:
-    print('.... Running the loop ....')
+    #print('.... Running the loop ....')
     #print('TheLoop: reading instruments ..')
     controlPanel.readInstruments()
-    print('Current error  = ',controlPanel.currentErrorArray)
-    print('Current rate   = ',controlPanel.currentRateArray)
-    print('Desired rate   = ',controlPanel.desiredRateArray)
-    #print('Time delta     = ',str.format('{0:.2f}', controlPanel.timeDeltaErrorUpdates))
-    print('Desired clicks = ',controlPanel.executeClicksArray)
-    print('Current clicks = ',controlPanel.currentClicksArray)
+    #print('Current error  = ',controlPanel.currentErrorArray)
+    #print('Current rate   = ',controlPanel.currentRateArray)
+    #print('Desired rate   = ',controlPanel.desiredRateArray)
+    ##print('Time delta     = ',str.format('{0:.2f}', controlPanel.timeDeltaErrorUpdates))
+    #print('Desired clicks = ',controlPanel.executeClicksArray)
+    #print('Current clicks = ',controlPanel.currentClicksArray)
+    print('Executing clicks = ',controlPanel.executeClicksArray)
     controlPanel.calcClicksArray()
     controlPanel.clickButtonsArray()
     #time.sleep(3)
