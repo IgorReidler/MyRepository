@@ -8,6 +8,7 @@ from selenium.webdriver.common.by import By
 #TODO: max clicks should be total, not per executeClicks
 #TODO: motionVector
 #TODO: decisions log
+#TODO: cheat by changing translationPulseSize!
 
 class controlPanelClass(): 
     def __init__(self): 
