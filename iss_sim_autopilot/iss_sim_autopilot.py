@@ -23,6 +23,8 @@ class controlPanelClass():
         self.rateParamsArray=np.zeros(7)
         self.ratePerClickArray=np.zeros(7)
         self.jsArray=['a','a','a','a','a','a','a']
+        self.rateParamsMaxArray=[1,1,1,1,1,1,2]
+        self.rateParamsMinArray=[-1,-1,-1,-1,-1,-1,-2]
         #self.jsArray = np.empty([7], dtype="S7")
 
         self.xyClicksParam=1 #was 1/3
@@ -35,12 +37,13 @@ class controlPanelClass():
         self.firstreadInstruments=True
         self.ratePerClickRotation=0.1
         self.ratePerClickTranslation=0.06
+        self.ratePerClickTranslationZ=0.045
         self.rateDeltaGravity=0.0098
         self.rotationRateParam=0.03
         self.translationRateParamXY=0.06 #was 0.015
-        self.translationRateParamZ=0.015 #was 0.015
+        self.translationRateParamZ=0.045 #was 0.015
         self.rateParamsArray=[self.rotationRateParam,self.rotationRateParam,self.rotationRateParam,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamZ]
-        self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.translationRateParamZ]
+        self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.ratePerClickTranslationZ]
         #array [roll, pitch, yaw, x, y, z, range]
 
     def readInstruments(self):
@@ -106,9 +109,10 @@ class controlPanelClass():
         #self.desiredRateArray=np.power(self.currentErrorArray,2)
         self.desiredRateArray=np.multiply(self.currentErrorArray,self.rateParamsArray)
         self.desiredRateArray[5]=self.desiredRateArray[5]+self.rateDeltaGravity #Gravity correction
+        self.desiredRateArray=np.clip(self.desiredRateArray,self.rateParamsMinArray,self.rateParamsMaxArray)
         self.deltaRateArray=np.subtract(self.desiredRateArray,self.currentRateArray)
         self.executeClicksArray=np.divide(self.deltaRateArray,self.ratePerClickArray)
-        self.executeClicksArray=np.clip(self.executeClicksArray,-10,10)
+        #self.executeClicksArray=np.clip(self.executeClicksArray,-10,10) #replaced by rate clipping
         self.executeClicksArray=np.sign(self.executeClicksArray) * np.ceil(np.abs(self.executeClicksArray))      
         #self.clicksExecuteArray=np.ceil(self.clicksExecuteArray) #was around
         self.executeClicksArray=self.executeClicksArray.astype(int)
