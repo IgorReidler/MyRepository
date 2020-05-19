@@ -1,3 +1,6 @@
+# Created by Igor Reidler
+# May 2020
+
 import numpy as np
 import time
 from selenium import webdriver
@@ -23,8 +26,8 @@ class controlPanelClass():
         self.rateParamsArray=np.zeros(7)
         self.ratePerClickArray=np.zeros(7)
         self.jsArray=['a','a','a','a','a','a','a'] #init js array
-        self.rateParamsMaxArray=[1,1,1,1,1,1,2]
-        self.rateParamsMinArray=[-1,-1,-1,-1,-1,-1,-2]
+        self.rateParamsMaxArray=[1,1,1,3,3,3,5] #successful (but slow) was [1,1,1,1,1,1,2]
+        self.rateParamsMinArray=[-1,-1,-1,-3,-3,-3,-5] #successful (but slow) was [1,1,1,1,1,1,-2]
         #self.jsArray = np.empty([7], dtype="S7")
 
         self.xyClicksParam=1 #was 1/3
@@ -122,7 +125,7 @@ class controlPanelClass():
         #Big red dock button
         self.currentErrorArrayAbs=np.absolute(self.currentErrorArray)
         if self.currentErrorArrayAbs[0]<0.1 and self.currentErrorArrayAbs[1]<0.1 and self.currentErrorArrayAbs[2]<0.1 and self.currentErrorArrayAbs[3]<0.6 and self.currentErrorArrayAbs[4]<0.2 and self.currentErrorArrayAbs[5]<0.2:
-              self.executeClicksArray=[0,0,0,0,0,0,10]
+              self.executeClicksArray=[0,0,0,0,0,0,3]
               print('Big red dock button activated!!!!!!!!!!!!!!!!!!!')
 
     def clickButtonsArray(self):
