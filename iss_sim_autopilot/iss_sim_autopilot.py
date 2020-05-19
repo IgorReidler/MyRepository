@@ -1,5 +1,6 @@
 # Created by Igor Reidler
 # May 2020
+# github test 1.21
 
 import numpy as np
 import time
@@ -187,7 +188,7 @@ class controlPanelClass():
         #Big red button
         self.currentErrorArrayAbs=np.absolute(self.currentErrorArray)
 
-        if self.currentErrorArrayAbs[0]<0.1 and self.currentErrorArrayAbs[1]<0.1 and self.currentErrorArrayAbs[2]<0.1 and self.currentErrorArrayAbs[3]<0.6 and self.currentErrorArrayAbs[4]<0.2 and self.currentErrorArrayAbs[5]<0.2:
+        if self.currentErrorArrayAbs[0]<0.1 and self.currentErrorArrayAbs[1]<0.1 and self.currentErrorArrayAbs[2]<0.1 and self.currentErrorArrayAbs[3]<0.4 and self.currentErrorArrayAbs[4]<0.2 and self.currentErrorArrayAbs[5]<0.2:
               self.executeClicksArray=[0,0,0,0,0,0,3]
               #self.translationRateParamZ=0.1
               print('Big red button activated!!!!!!!!!!!!!!!!!!!')
