@@ -48,6 +48,40 @@ class controlPanelClass():
         self.rateParamsArray=[self.rotationRateParam,self.rotationRateParam,self.rotationRateParam,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamZ]
         self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.ratePerClickTranslationZ]
         #array [roll, pitch, yaw, x, y, z, range]
+    def readInstrumentsOld(self):
+        try:
+            self.readInstrumentsTimeStart=time.time()
+            self.previousErrorArray=np.copy(self.currentErrorArray) #save last current error array to previous
+            self.timePrevErrorUpdate = self.timeCurrentErrorUpdate #save last current time array to previous
+            self.currentErrorArray[0] = float(browser.execute_script("return fixedRotationZ;"))
+            self.currentErrorArray[1] = float(browser.execute_script("return fixedRotationX;"))
+            self.currentErrorArray[2] = float(browser.execute_script("return fixedRotationY;"))         
+            #Translation Error
+            self.currentErrorArray[3]  =float(browser.find_element_by_xpath("//div[@id='x-range']/div[@class='distance']").text[:-1])
+            self.currentErrorArray[4]  =float(browser.find_element_by_xpath("//div[@id='y-range']/div[@class='distance']").text[:-1])
+            self.timeCurrentErrorUpdate = time.time()
+            self.currentErrorArray[5]  =float(browser.find_element_by_xpath("//div[@id='z-range']/div[@class='distance']").text[:-1])
+            self.currentErrorArray[6] = float(browser.execute_script("return prevRange;"))          
+            #Rotation Rates read
+            self.currentRateArray[0]  = browser.execute_script("return rateRotationZ/10;")
+            self.currentRateArray[1] = browser.execute_script("return rateRotationX/10;")
+            self.currentRateArray[2] = browser.execute_script("return rateRotationY/10;")           
+            #Translation Rates read
+            self.currentRateArray[6] = browser.execute_script("return rateCurrent;")
+            #Translation Rates calc         
+            #Calculate y, z rates
+            if not self.firstreadInstruments:
+                self.timeDeltaErrorUpdates = self.timeCurrentErrorUpdate - self.timePrevErrorUpdate
+                self.currentRateArray[4:6]=np.subtract(self.currentErrorArray[4:6],self.previousErrorArray[4:6])
+                self.currentRateArray[4:6]=np.divide(self.currentRateArray[4:6],self.timeDeltaErrorUpdates)
+            self.firstreadInstruments=False
+            self.elapsedTime1=time.time()-self.readInstrumentsTimeStart
+        except:
+            print('Docking simulation ended')
+            self.dockingTotalTime=time.time()-dockingStartTime
+            print('Total docking time =',round(self.dockingTotalTime,2))
+            self.runFlag=0
+            exit()
 
     def readInstruments(self):
         if self.timeFlag: self.readInstrumentsTimeStart=time.time()
@@ -188,7 +222,7 @@ while 1:
     #print('.... Running the loop ....')
     #print('TheLoop: reading instruments ..')
     startTime=time.time()
-    controlPanel.readInstruments()
+    controlPanel.readInstrumentsOld()
     readInstrumentsTime=time.time()
     #print('Current error  = ',controlPanel.currentErrorArray)
     #print('Current rate   = ',controlPanel.currentRateArray)
