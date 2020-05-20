@@ -1,5 +1,6 @@
 # Created by Igor Reidler
 # May 2020
+# github test 1.21
 
 import numpy as np
 import time
@@ -41,7 +42,7 @@ class controlPanelClass():
         self.ratePerClickRotation=0.1
         self.ratePerClickTranslation=0.06
         self.ratePerClickTranslationZ=0.045
-        self.rateDeltaGravity=0.0000 #was 0.0098
+        self.rateDeltaGravity=0.0000 #was 0.0098 (0 is correct)
         self.rotationRateParam=0.03
         self.translationRateParamXY=0.06 #last success with 0.06
         self.translationRateParamZ=0.045  #last success with 0.045
@@ -146,11 +147,12 @@ class controlPanelClass():
         #self.elapsedTime=self.readInstrumentsTimeEnd=time.time()-self.readInstrumentsTimeStart
         #print(self.elapsedTime)
 
-        #Big red dock button
+        #Big red button
         self.currentErrorArrayAbs=np.absolute(self.currentErrorArray)
         if self.currentErrorArrayAbs[0]<0.1 and self.currentErrorArrayAbs[1]<0.1 and self.currentErrorArrayAbs[2]<0.1 and self.currentErrorArrayAbs[3]<0.4 and self.currentErrorArrayAbs[4]<0.2 and self.currentErrorArrayAbs[5]<0.2:
               self.executeClicksArray=[0,0,0,0,0,0,3]
-              print('Big red dock button activated!!!!!!!!!!!!!!!!!!!')
+              #self.translationRateParamZ=0.1
+              print('Big red button activated!!!!!!!!!!!!!!!!!!!')
 
     def clickButtonsArray(self):
         self.currentClicksArray=np.add(self.currentClicksArray,self.executeClicksArray)
@@ -207,6 +209,7 @@ wait = WebDriverWait(browser, 100)
 elem = wait.until(EC.element_to_be_clickable((By.ID, 'begin-button')))
 print('Clicked the large "Begin" button')
 elem.click()
+dockingStartTime=time.time()
 #print('Click the large "Begin" button to continue!')
 
 #wait for translate-up-button to become clickable
@@ -220,6 +223,7 @@ controlPanel=controlPanelClass() # init controlPanelClass
 #The loop
 while 1:
     #print('.... Running the loop ....')
+    print('.... Running the loop ....')
     #print('TheLoop: reading instruments ..')
     startTime=time.time()
     controlPanel.readInstrumentsOld()
