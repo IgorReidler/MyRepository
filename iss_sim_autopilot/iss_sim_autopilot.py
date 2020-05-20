@@ -49,8 +49,9 @@ class controlPanelClass():
         self.rateParamsArray=[self.rotationRateParam,self.rotationRateParam,self.rotationRateParam,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamZ]
         self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.ratePerClickTranslationZ]
         #array [roll, pitch, yaw, x, y, z, range]
-    def readInstrumentsOld(self):
+    def readInstruments(self):
         try:
+            if self.timeFlag: self.readInstrumentsTimeStart=time.time()
             self.readInstrumentsTimeStart=time.time()
             self.previousErrorArray=np.copy(self.currentErrorArray) #save last current error array to previous
             self.timePrevErrorUpdate = self.timeCurrentErrorUpdate #save last current time array to previous
@@ -63,12 +64,14 @@ class controlPanelClass():
             self.timeCurrentErrorUpdate = time.time()
             self.currentErrorArray[5]  =float(browser.find_element_by_xpath("//div[@id='z-range']/div[@class='distance']").text[:-1])
             self.currentErrorArray[6] = float(browser.execute_script("return prevRange;"))          
+            if self.timeFlag: self.readInstrumentsTimeErrorsFinished=time.time()
             #Rotation Rates read
             self.currentRateArray[0]  = browser.execute_script("return rateRotationZ/10;")
             self.currentRateArray[1] = browser.execute_script("return rateRotationX/10;")
             self.currentRateArray[2] = browser.execute_script("return rateRotationY/10;")           
             #Translation Rates read
             self.currentRateArray[6] = browser.execute_script("return rateCurrent;")
+            if self.timeFlag: self.readInstrumentsTimeRatesFinished=time.time()
             #Translation Rates calc         
             #Calculate y, z rates
             if not self.firstreadInstruments:
@@ -76,7 +79,8 @@ class controlPanelClass():
                 self.currentRateArray[4:6]=np.subtract(self.currentErrorArray[4:6],self.previousErrorArray[4:6])
                 self.currentRateArray[4:6]=np.divide(self.currentRateArray[4:6],self.timeDeltaErrorUpdates)
             self.firstreadInstruments=False
-            self.elapsedTime1=time.time()-self.readInstrumentsTimeStart
+
+            if self.timeFlag: self.calcZtimes=time.time()
         except:
             print('Docking simulation ended')
             self.dockingTotalTime=time.time()-dockingStartTime
@@ -84,55 +88,6 @@ class controlPanelClass():
             self.runFlag=0
             exit()
 
-    def readInstruments(self):
-        if self.timeFlag: self.readInstrumentsTimeStart=time.time()
-        self.previousErrorArray=np.copy(self.currentErrorArray) #save last current error array to previous
-        self.timePrevErrorUpdate = self.timeCurrentErrorUpdate #save last current time array to previous
-        self.currentErrorArray[0] = float(browser.execute_script("return fixedRotationZ;"))
-        self.currentErrorArray[1] = float(browser.execute_script("return fixedRotationX;"))
-        self.currentErrorArray[2] = float(browser.execute_script("return fixedRotationY;"))
-        self.currentErrorArray[6] = float(browser.execute_script("return prevRange;"))
-        #Rotation Rates read
-        self.currentRateArray[0]  = browser.execute_script("return rateRotationZ/10;")
-        self.currentRateArray[1] = browser.execute_script("return rateRotationX/10;")
-        self.currentRateArray[2] = browser.execute_script("return rateRotationY/10;")
-        #Translation Rates read
-        self.currentRateArray[6] = browser.execute_script("return rateCurrent;")
-        if self.timeFlag: self.readInstrumentsTimeJsfinished=time.time()
-
-        #Translation Error
-        self.currentErrorArray[3]  =float(browser.find_element_by_xpath("//div[@id='x-range']/div[@class='distance']").text[:-1])
-        self.currentErrorArray[4]  =float(browser.find_element_by_xpath("//div[@id='y-range']/div[@class='distance']").text[:-1])
-        self.currentErrorArray[5]  =float(browser.find_element_by_xpath("//div[@id='z-range']/div[@class='distance']").text[:-1])
-
-        if self.timeFlag: self.readInstrumentsTimeXpathFinished=time.time()
-
-        #not working - get rates 3:5 fro js      
-        #self.xyzMotionVector=browser.execute_script("return motionVector")
-        #self.currentRateArray[3]=self.xyzMotionVector['x']
-        #self.currentRateArray[4]=self.xyzMotionVector['y']
-        #self.currentRateArray[5]=self.xyzMotionVector['z']
-        ##self.currentRateArray[3] = browser.execute_script("return motionVector")['x']*60
-        #print('X rate JS = ',self.currentRateArray[3])
-        ##self.currentRateArray[4] = browser.execute_script("return motionVector")['y']*60
-        #print('X rate JS = ',self.currentRateArray[4])
-        ##self.currentRateArray[5] = browser.execute_script("return motionVector")['z']*60
-        #print('X rate JS = ',self.currentRateArray[5])
-
-        #Translation Rates calc
-
-        #Calculate y, z rates
-        if not self.firstreadInstruments:
-            self.timeDeltaErrorUpdates = self.timeCurrentErrorUpdate - self.timePrevErrorUpdate
-            self.currentRateArray[4:6]=np.subtract(self.currentErrorArray[4:6],self.previousErrorArray[4:6])
-            self.currentRateArray[4:6]=np.divide(self.currentRateArray[4:6],self.timeDeltaErrorUpdates)
-        self.firstreadInstruments=False
-        
-        if self.timeFlag: self.calcZtimes=time.time()
-        #print('readInstruments',self.elapsedTime1)
-        #print('X rate JS = ',self.currentRateArray[3])
-        #print('Y rate JS = ',self.currentRateArray[4])
-        #print('Z rate JS = ',self.currentRateArray[5])
     def calcClicksArray(self):
         #self.desiredRateArray=np.power(self.currentErrorArray,2)
         self.desiredRateArray=np.multiply(self.currentErrorArray,self.rateParamsArray)
@@ -209,7 +164,6 @@ wait = WebDriverWait(browser, 100)
 elem = wait.until(EC.element_to_be_clickable((By.ID, 'begin-button')))
 print('Clicked the large "Begin" button')
 elem.click()
-dockingStartTime=time.time()
 #print('Click the large "Begin" button to continue!')
 
 #wait for translate-up-button to become clickable
@@ -217,16 +171,16 @@ wait = WebDriverWait(browser, 1000)
 wait.until(EC.element_to_be_clickable((By.ID, 'translate-up-button')))
 time.sleep(waitAfterButtonsClickable)
 print('<<<<<<<<<<<< Script is Ready! >>>>>>>>>>>>>')
+dockingStartTime=time.time()
 
 controlPanel=controlPanelClass() # init controlPanelClass
 
 #The loop
 while 1:
-    #print('.... Running the loop ....')
     print('.... Running the loop ....')
     #print('TheLoop: reading instruments ..')
     startTime=time.time()
-    controlPanel.readInstrumentsOld()
+    controlPanel.readInstruments()
     readInstrumentsTime=time.time()
     #print('Current error  = ',controlPanel.currentErrorArray)
     #print('Current rate   = ',controlPanel.currentRateArray)
@@ -239,9 +193,9 @@ while 1:
     calcClicksTime=time.time()
     controlPanel.clickButtonsArray()
     clickButtonsTime=time.time()
-    if controlPanel.timeFlag: print('ReadInstruments Time Js = ',round(controlPanel.readInstrumentsTimeJsfinished-controlPanel.readInstrumentsTimeStart,2))
-    if controlPanel.timeFlag: print('ReadInstruments Time Xpath = ',round(controlPanel.readInstrumentsTimeXpathFinished-controlPanel.readInstrumentsTimeJsfinished,2))
-    if controlPanel.timeFlag: print('ReadInstruments Time calcZ = ',round(controlPanel.calcZtimes-controlPanel.readInstrumentsTimeXpathFinished,2))
+    if controlPanel.timeFlag: print('ReadInstruments Time Js = ',round(controlPanel.readInstrumentsTimeErrorsFinished-controlPanel.readInstrumentsTimeStart,2))
+    if controlPanel.timeFlag: print('ReadInstruments Time Xpath = ',round(controlPanel.readInstrumentsTimeRateshFinished-controlPanel.readInstrumentsTimeErrorsFinished,2))
+    if controlPanel.timeFlag: print('ReadInstruments Time calcZ = ',round(controlPanel.calcZtimes-controlPanel.readInstrumentsTimeRatesFinished,2))
     print('Total ReadInstruments Time = ',round(readInstrumentsTime-startTime,2))
     print('calcClicks Time = ',round(calcClicksTime-readInstrumentsTime,2))
     print('clickButtons Time = ',round(clickButtonsTime-calcClicksTime,2))
