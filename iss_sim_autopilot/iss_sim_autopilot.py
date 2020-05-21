@@ -59,10 +59,12 @@ class controlPanelClass():
             self.currentErrorArray[1] = float(browser.execute_script("return fixedRotationX;"))
             self.currentErrorArray[2] = float(browser.execute_script("return fixedRotationY;"))         
             #Translation Error
-            self.currentErrorArray[3]  =float(browser.find_element_by_xpath("//div[@id='x-range']/div[@class='distance']").text[:-1])
-            self.currentErrorArray[4]  =float(browser.find_element_by_xpath("//div[@id='y-range']/div[@class='distance']").text[:-1])
+            #self.currentErrorArray[3]  =float(browser.find_element_by_xpath("//div[@id='x-range']/div[@class='distance']").text[:-1])
+            #self.currentErrorArray[4]  =float(browser.find_element_by_xpath("//div[@id='y-range']/div[@class='distance']").text[:-1])
+            self.currentErrorArray[4]  =float(browser.execute_script("return camera.position.x;")) 
             self.timeCurrentErrorUpdate = time.time()
-            self.currentErrorArray[5]  =float(browser.find_element_by_xpath("//div[@id='z-range']/div[@class='distance']").text[:-1])
+            #self.currentErrorArray[5]  =float(browser.find_element_by_xpath("//div[@id='z-range']/div[@class='distance']").text[:-1])
+            self.currentErrorArray[5]  =float(browser.execute_script("return camera.position.y;")) 
             self.currentErrorArray[6] = float(browser.execute_script("return prevRange;"))          
             if self.timeFlag: self.readInstrumentsTimeErrorsFinished=time.time()
             #Rotation Rates read
@@ -73,11 +75,16 @@ class controlPanelClass():
             self.currentRateArray[6] = browser.execute_script("return rateCurrent;")
             if self.timeFlag: self.readInstrumentsTimeRatesFinished=time.time()
             #Translation Rates calc         
+            self.currentRateArrayMY  = browser.execute_script("return motionVector.x*60;")
+            self.currentRateArrayMZ  = browser.execute_script("return motionVector.y*60;")
+            print('rate m =',self.currentRateArrayMX,' ',self.currentRateArrayMZ)
+        
             #Calculate y, z rates
             if not self.firstreadInstruments:
                 self.timeDeltaErrorUpdates = self.timeCurrentErrorUpdate - self.timePrevErrorUpdate
                 self.currentRateArray[4:6]=np.subtract(self.currentErrorArray[4: 6],self.previousErrorArray[4:6])
                 self.currentRateArray[4:6]=np.divide(self.currentRateArray[4:6],self.timeDeltaErrorUpdates)
+                print('rate  c=',self.currentRateArray[4:6])
             self.firstreadInstruments=False
 
             if self.timeFlag: self.calcZtimes=time.time()
@@ -101,7 +108,9 @@ class controlPanelClass():
         self.executeClicksArray=self.executeClicksArray.astype(int)
         #self.elapsedTime=self.readInstrumentsTimeEnd=time.time()-self.readInstrumentsTimeStart
         #print(self.elapsedTime)
-
+        
+        #self.executeClicksArray[3:7]=[0,0,0,0] #to only click rotation
+        
         #Big red button
         self.currentErrorArrayAbs=np.absolute(self.currentErrorArray)
         if self.currentErrorArrayAbs[0]<0.1 and self.currentErrorArrayAbs[1]<0.1 and self.currentErrorArrayAbs[2]<0.1 and self.currentErrorArrayAbs[3]<0.4 and self.currentErrorArrayAbs[4]<0.2 and self.currentErrorArrayAbs[5]<0.2:
