@@ -9,10 +9,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
-#TODO: max clicks should be total, not per executeClicks
-#TODO: motionVector
-#TODO: decisions log
-#TODO: cheat by changing translationPulseSize!
+#TODO: asyncio + plan desired error delta, rate amplitude and duration
+# consider using fixed amplitude, changing only duration.
+
+#Comment: what is motionVector?
 
 class controlPanelClass(): 
     def __init__(self): 
@@ -76,7 +76,7 @@ class controlPanelClass():
             #Calculate y, z rates
             if not self.firstreadInstruments:
                 self.timeDeltaErrorUpdates = self.timeCurrentErrorUpdate - self.timePrevErrorUpdate
-                self.currentRateArray[4:6]=np.subtract(self.currentErrorArray[4:6],self.previousErrorArray[4:6])
+                self.currentRateArray[4:6]=np.subtract(self.currentErrorArray[4: 6],self.previousErrorArray[4:6])
                 self.currentRateArray[4:6]=np.divide(self.currentRateArray[4:6],self.timeDeltaErrorUpdates)
             self.firstreadInstruments=False
 
@@ -194,7 +194,7 @@ while 1:
     controlPanel.clickButtonsArray()
     clickButtonsTime=time.time()
     if controlPanel.timeFlag: print('ReadInstruments Time Js = ',round(controlPanel.readInstrumentsTimeErrorsFinished-controlPanel.readInstrumentsTimeStart,2))
-    if controlPanel.timeFlag: print('ReadInstruments Time Xpath = ',round(controlPanel.readInstrumentsTimeRateshFinished-controlPanel.readInstrumentsTimeErrorsFinished,2))
+    if controlPanel.timeFlag: print('ReadInstruments Time Xpath = ',round(controlPanel.readInstrumentsTimeRatesFinished-controlPanel.readInstrumentsTimeErrorsFinished,2))
     if controlPanel.timeFlag: print('ReadInstruments Time calcZ = ',round(controlPanel.calcZtimes-controlPanel.readInstrumentsTimeRatesFinished,2))
     print('Total ReadInstruments Time = ',round(readInstrumentsTime-startTime,2))
     print('calcClicks Time = ',round(calcClicksTime-readInstrumentsTime,2))
