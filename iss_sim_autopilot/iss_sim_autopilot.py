@@ -1,9 +1,11 @@
 # Created by Igor Reidler
 # May 2020
-# github test 1.21
+
 
 import numpy as np
 import time
+import asyncio
+
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -49,7 +51,7 @@ class controlPanelClass():
         self.rateParamsArray=[self.rotationRateParam,self.rotationRateParam,self.rotationRateParam,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamZ]
         self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.ratePerClickTranslationZ]
         #array [roll, pitch, yaw, x, y, z, range]
-    def readInstruments(self):
+    async def readInstruments(self):
         try:
             if self.timeFlag: self.readInstrumentsTimeStart=time.time()
             self.readInstrumentsTimeStart=time.time()
@@ -88,7 +90,7 @@ class controlPanelClass():
             self.runFlag=0
             exit()
 
-    def calcClicksArray(self):
+    async def calcClicksArray(self):
         #self.desiredRateArray=np.power(self.currentErrorArray,2)
         self.desiredRateArray=np.multiply(self.currentErrorArray,self.rateParamsArray)
         self.desiredRateArray[5]=self.desiredRateArray[5]+self.rateDeltaGravity #Gravity correction
@@ -109,7 +111,7 @@ class controlPanelClass():
               #self.translationRateParamZ=0.1
               print('Big red button activated!!!!!!!!!!!!!!!!!!!')
 
-    def clickButtonsArray(self):
+    async def clickButtonsArray(self):
         self.currentClicksArray=np.add(self.currentClicksArray,self.executeClicksArray)
         if self.executeClicksArray[0]>=0:
             self.jsArray[0]='rollRight();'
@@ -176,7 +178,7 @@ dockingStartTime=time.time()
 controlPanel=controlPanelClass() # init controlPanelClass
 
 #The loop
-while 1:
+while 0:
     print('.... Running the loop ....')
     #print('TheLoop: reading instruments ..')
     startTime=time.time()
@@ -199,3 +201,15 @@ while 1:
     print('Total ReadInstruments Time = ',round(readInstrumentsTime-startTime,2))
     print('calcClicks Time = ',round(calcClicksTime-readInstrumentsTime,2))
     print('clickButtons Time = ',round(clickButtonsTime-calcClicksTime,2))
+
+
+async def main():
+    tasks = []
+    tasks.append(asyncio.ensure_future(controlPanel.readInstruments()))
+    tasks.append(asyncio.ensure_future(controlPanel.calcClicksArray()))
+    tasks.append(asyncio.ensure_future(controlPanel.clickButtonsArray()))
+    await asyncio.gather(*tasks)
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())
+loop.close
