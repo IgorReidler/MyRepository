@@ -77,14 +77,15 @@ class controlPanelClass():
             #Translation Rates calc         
             self.currentRateArrayMY  = browser.execute_script("return motionVector.x*60;")
             self.currentRateArrayMZ  = browser.execute_script("return motionVector.y*60;")
-            print('rate m =',self.currentRateArrayMX,' ',self.currentRateArrayMZ)
+            print('rate m =',self.currentRateArrayMY,' ',self.currentRateArrayMZ)
         
+ #Translation Rates calc         
             #Calculate y, z rates
             if not self.firstreadInstruments:
                 self.timeDeltaErrorUpdates = self.timeCurrentErrorUpdate - self.timePrevErrorUpdate
                 self.currentRateArray[4:6]=np.subtract(self.currentErrorArray[4: 6],self.previousErrorArray[4:6])
                 self.currentRateArray[4:6]=np.divide(self.currentRateArray[4:6],self.timeDeltaErrorUpdates)
-                print('rate  c=',self.currentRateArray[4:6])
+                print('rate c =',self.currentRateArray[4],' ',self.currentRateArray[5])
             self.firstreadInstruments=False
 
             if self.timeFlag: self.calcZtimes=time.time()
@@ -109,7 +110,7 @@ class controlPanelClass():
         #self.elapsedTime=self.readInstrumentsTimeEnd=time.time()-self.readInstrumentsTimeStart
         #print(self.elapsedTime)
         
-        #self.executeClicksArray[3:7]=[0,0,0,0] #to only click rotation
+        self.executeClicksArray[3:7]=[0,0,0,0] #to only click rotation
         
         #Big red button
         self.currentErrorArrayAbs=np.absolute(self.currentErrorArray)
