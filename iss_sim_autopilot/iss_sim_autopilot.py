@@ -33,6 +33,7 @@ class controlPanelClass():
         #self.jsArray = np.empty([7], dtype="S7")
         self.xyClicksParam=1 #was 1/3
         self.timeFlag=0
+        self.lastTime=time.time()
 
         self.calcRatesFlag=1 #calculate translation rate from error (true) or from clicks (false)
 
@@ -159,8 +160,20 @@ class controlPanelClass():
         self.executeClicksArray=np.absolute(self.executeClicksArray) #number of times a string is pasted must be positive
         self.jsExecuteString=(self.jsArray[0])*self.executeClicksArray[0]+(self.jsArray[1])*self.executeClicksArray[1]+(self.jsArray[2])*self.executeClicksArray[2]+(self.jsArray[3])*self.executeClicksArray[3]+(self.jsArray[4])*self.executeClicksArray[4]+(self.jsArray[5])*self.executeClicksArray[5]+(self.jsArray[6])*self.executeClicksArray[6]
         browser.execute_script(self.jsExecuteString) #execute the string
+        print('Time from prev loop = ',round(self.lastTime-time.time(),2))
+        self.lastTime=time.time()
+
 
 #array [roll, pitch, yaw, x, y, z, range]
+
+def do_something(sc): 
+    print(".... Running the loop ....")
+    controlPanel.readInstruments()
+    controlPanel.calcClicksArray()
+    controlPanel.clickButtonsArray()
+    # do your stuff
+    s.enter(1, 1, do_something, (sc,)) #first argument is delay in sec
+
 
 #Parameters definition
 timeDeltaSameClicks=0.00 #was 0.01
@@ -214,14 +227,6 @@ while 0:
     #scheduler
 s = sched.scheduler(time.time, time.sleep)
 startTime=time.time()
-def do_something(sc): 
-    print(".... Running the loop ....")
-    print('Time from prev loop = ',round(startTime-time.time(),2))
-    controlPanel.readInstruments()
-    controlPanel.calcClicksArray()
-    controlPanel.clickButtonsArray()
-    # do your stuff
-    s.enter(1, 1, do_something, (sc,)) #first argument is delay in sec
 s.enter(1, 1, do_something, (s,)) #first argument is delay in sec
 s.run()
 #The loop
