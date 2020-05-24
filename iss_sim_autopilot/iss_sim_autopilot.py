@@ -4,6 +4,7 @@
 
 import numpy as np
 import time
+import sched
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -187,7 +188,7 @@ dockingStartTime=time.time()
 controlPanel=controlPanelClass() # init controlPanelClass
 
 #The loop
-while 1:
+while 0:
     print('.... Running the loop ....')
     #print('TheLoop: reading instruments ..')
     startTime=time.time()
@@ -209,3 +210,18 @@ while 1:
     #print('Total ReadInstruments Time = ',round(readInstrumentsTime-startTime,2))
     #print('calcClicks Time = ',round(calcClicksTime-readInstrumentsTime,2))
     #print('clickButtons Time = ',round(clickButtonsTime-calcClicksTime,2))
+
+    #scheduler
+s = sched.scheduler(time.time, time.sleep)
+startTime=time.time()
+def do_something(sc): 
+    print(".... Running the loop ....")
+    print('Time from prev loop = ',round(startTime-time.time(),2))
+    controlPanel.readInstruments()
+    controlPanel.calcClicksArray()
+    controlPanel.clickButtonsArray()
+    # do your stuff
+    s.enter(1, 1, do_something, (sc,)) #first argument is delay in sec
+s.enter(1, 1, do_something, (s,)) #first argument is delay in sec
+s.run()
+#The loop
