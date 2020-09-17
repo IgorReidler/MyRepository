@@ -166,7 +166,7 @@ timeDeltaSameClicks=0.00 #was 0.01
 waitAfterButtonsClickable=5
 
 #chromedriver
-chromedriver = "E:\\MyProj\\chromedriver.exe"
+chromedriver = "C:\\Users\\igor.reidler\\OneDrive - Innoviz Technologies\\Documents\\Python\\chromedriver\\chromedriver.exe"
 browser=webdriver.Chrome(chromedriver)
 #open chrome with the following address
 browser.get("https://iss-sim.spacex.com/")
