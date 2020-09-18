@@ -43,9 +43,11 @@ class controlPanelClass():
         self.ratePerClickTranslation=0.06
         self.ratePerClickTranslationZ=0.045
         self.rateDeltaGravity=0.0000 #was 0.0098 (0 is correct)
+        
         self.rotationRateParam=0.03
-        self.translationRateParamXY=0.1 #last success with 0.06
+        self.translationRateParamXY=0.5 #last success with 0.06 (Sep2020 0.5)
         self.translationRateParamZ=0.045  #last success with 0.045
+        
         self.rateParamsArray=[self.rotationRateParam,self.rotationRateParam,self.rotationRateParam,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamZ]
         self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.ratePerClickTranslationZ]
         #array [roll, pitch, yaw, x, y, z, range]
