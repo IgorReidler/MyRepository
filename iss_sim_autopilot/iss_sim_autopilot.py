@@ -45,8 +45,8 @@ class controlPanelClass():
         self.rateDeltaGravity=0.0000 #was 0.0098 (0 is correct)
         
         self.rotationRateParam=0.03
-        self.translationRateParamXY=0.5 #last success with 0.06 (Sep2020 0.5)
-        self.translationRateParamZ=0.045  #last success with 0.045
+        self.translationRateParamXY=0.2 #last success with 0.06 (Sep2020 0.5)
+        self.translationRateParamZ=0.035  #last success with 0.045
         
         self.rateParamsArray=[self.rotationRateParam,self.rotationRateParam,self.rotationRateParam,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamZ]
         self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.ratePerClickTranslationZ]
@@ -162,52 +162,72 @@ class controlPanelClass():
         browser.execute_script(self.jsExecuteString) #execute the string
 
 #array [roll, pitch, yaw, x, y, z, range]
+for gameNum in range(10):
+    #Parameters definition
+    timeDeltaSameClicks=0.00 #was 0.01
+    waitAfterButtonsClickable=5
 
-#Parameters definition
-timeDeltaSameClicks=0.00 #was 0.01
-waitAfterButtonsClickable=5
+    #chromedriver
+    chromedriver = "C:\\Users\\igor.reidler\\OneDrive - Innoviz Technologies\\Documents\\Python\\chromedriver\\chromedriver.exe"
+    browser=webdriver.Chrome(chromedriver)
+    #open chrome with the following address
+    browser.get("https://iss-sim.spacex.com/")
+    #wait for Begin button
+    wait = WebDriverWait(browser, 100)
+    elem = wait.until(EC.element_to_be_clickable((By.ID, 'begin-button')))
+    print('Clicked the large "Begin" button')
+    elem.click()
+    #print('Click the large "Begin" button to continue!')
 
-#chromedriver
-chromedriver = "C:\\Users\\igor.reidler\\OneDrive - Innoviz Technologies\\Documents\\Python\\chromedriver\\chromedriver.exe"
-browser=webdriver.Chrome(chromedriver)
-#open chrome with the following address
-browser.get("https://iss-sim.spacex.com/")
-#wait for Begin button
-wait = WebDriverWait(browser, 100)
-elem = wait.until(EC.element_to_be_clickable((By.ID, 'begin-button')))
-print('Clicked the large "Begin" button')
-elem.click()
-#print('Click the large "Begin" button to continue!')
+    #wait for translate-up-button to become clickable
+    wait = WebDriverWait(browser, 1000)
+    wait.until(EC.element_to_be_clickable((By.ID, 'translate-up-button')))
+    time.sleep(waitAfterButtonsClickable)
+    print('<<<<<<<<<<<< Script is Ready! >>>>>>>>>>>>>')
+    dockingStartTime=time.time()
 
-#wait for translate-up-button to become clickable
-wait = WebDriverWait(browser, 1000)
-wait.until(EC.element_to_be_clickable((By.ID, 'translate-up-button')))
-time.sleep(waitAfterButtonsClickable)
-print('<<<<<<<<<<<< Script is Ready! >>>>>>>>>>>>>')
-dockingStartTime=time.time()
+    controlPanel=controlPanelClass() # init controlPanelClass
 
-controlPanel=controlPanelClass() # init controlPanelClass
-
-#The loop
-while 1:
-    print('.... Running the loop ....')
-    #print('TheLoop: reading instruments ..')
-    startTime=time.time()
-    controlPanel.readInstruments()
-    readInstrumentsTime=time.time()
-    print('Current error  = ',controlPanel.currentErrorArray)
-    print('Current rate   = ',controlPanel.currentRateArray)
-    print('Desired rate   = ',controlPanel.desiredRateArray)
-    print('Desired clicks = ',controlPanel.executeClicksArray)
-    print('Current clicks = ',controlPanel.currentClicksArray)
-    print('Executing clicks = ',controlPanel.executeClicksArray)
-    controlPanel.calcClicksArray()
-    calcClicksTime=time.time()
-    controlPanel.clickButtonsArray()
-    clickButtonsTime=time.time()
-    if controlPanel.timeFlag: print('ReadInstruments Time Js = ',round(controlPanel.readInstrumentsTimeErrorsFinished-controlPanel.readInstrumentsTimeStart,2))
-    if controlPanel.timeFlag: print('ReadInstruments Time Xpath = ',round(controlPanel.readInstrumentsTimeRatesFinished-controlPanel.readInstrumentsTimeErrorsFinished,2))
-    if controlPanel.timeFlag: print('ReadInstruments Time calcZ = ',round(controlPanel.calcZtimes-controlPanel.readInstrumentsTimeRatesFinished,2))
-    #print('Total ReadInstruments Time = ',round(readInstrumentsTime-startTime,2))
-    #print('calcClicks Time = ',round(calcClicksTime-readInstrumentsTime,2))
-    #print('clickButtons Time = ',round(clickButtonsTime-calcClicksTime,2))
+    successElem=browser.find_element_by_id('success-button')
+    failElem=browser.find_element_by_id('fail-button')
+    #The loop
+    loopStartTime=time.time()
+    while not (successElem.is_displayed() or failElem.is_displayed()):
+        print('.... Running the loop ....')
+        #print('TheLoop: reading instruments ..')
+        startTime=time.time()
+        controlPanel.readInstruments()
+        readInstrumentsTime=time.time()
+        print('Current error  = ',controlPanel.currentErrorArray)
+        print('Current rate   = ',controlPanel.currentRateArray)
+        print('Desired rate   = ',controlPanel.desiredRateArray)
+        print('Desired clicks = ',controlPanel.executeClicksArray)
+        print('Current clicks = ',controlPanel.currentClicksArray)
+        print('Executing clicks = ',controlPanel.executeClicksArray)
+        controlPanel.calcClicksArray()
+        calcClicksTime=time.time()
+        controlPanel.clickButtonsArray()
+        clickButtonsTime=time.time()
+        if controlPanel.timeFlag: print('ReadInstruments Time Js = ',round(controlPanel.readInstrumentsTimeErrorsFinished-controlPanel.readInstrumentsTimeStart,2))
+        if controlPanel.timeFlag: print('ReadInstruments Time Xpath = ',round(controlPanel.readInstrumentsTimeRatesFinished-controlPanel.readInstrumentsTimeErrorsFinished,2))
+        if controlPanel.timeFlag: print('ReadInstruments Time calcZ = ',round(controlPanel.calcZtimes-controlPanel.readInstrumentsTimeRatesFinished,2))
+        #print('Total ReadInstruments Time = ',round(readInstrumentsTime-startTime,2))
+        #print('calcClicks Time = ',round(calcClicksTime-readInstrumentsTime,2))
+        #print('clickButtons Time = ',round(clickButtonsTime-calcClicksTime,2))
+    if successElem.is_displayed():
+        loopTotalTime=time.time()-loopStartTime
+        print('Total docking time =',round(loopTotalTime,2))
+        writeString='Success!! translationRateParamXY='+str(controlPanel.translationRateParamXY)+' translationRateParamXY='+str(controlPanel.translationRateParamZ)+' | Total docking time ='+str(round(loopTotalTime,2))+' seconds \n'
+        print('Success!! translationRateParamXY=',controlPanel.translationRateParamXY,' translationRateParamXY=',controlPanel.translationRateParamZ)
+        with open("iss_sim_autopylot_log.txt", "a") as f:
+            f.write(writeString)
+        loopTotalTime=time.time()-loopStartTime
+        print('Total docking time =',round(loopTotalTime,2))
+    elif failElem.is_displayed():
+        loopTotalTime=time.time()-loopStartTime
+        print('Total docking time =',round(loopTotalTime,2))
+        writeString='Fail!! translationRateParamXY='+str(controlPanel.translationRateParamXY)+' translationRateParamXY='+str(controlPanel.translationRateParamZ)+' | Total docking time ='+str(round(loopTotalTime,2))+' seconds \n'
+        print('Fail!! translationRateParamXY=',controlPanel.translationRateParamXY,' translationRateParamXY=',controlPanel.translationRateParamZ)
+        with open("iss_sim_autopylot_log.txt", "a") as f:
+            f.write(writeString)
+    browser.close()
