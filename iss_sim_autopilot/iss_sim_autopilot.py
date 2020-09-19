@@ -47,7 +47,8 @@ class controlPanelClass():
         self.rotationRateParam=0.03
         self.translationRateParamXY=0.2 #last success with 0.06 (Sep2020 0.5)
         self.translationRateParamZ=0.035  #last success with 0.045
-        
+        self.translationRateParamZfast=50
+        self.translationRateParamZslow=0.045 #(same as self.translationRateParamZ=0.035)
         self.rateParamsArray=[self.rotationRateParam,self.rotationRateParam,self.rotationRateParam,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamZ]
         self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.ratePerClickTranslationZ]
         #array [roll, pitch, yaw, x, y, z, range]
@@ -162,7 +163,7 @@ class controlPanelClass():
         browser.execute_script(self.jsExecuteString) #execute the string
 
 #array [roll, pitch, yaw, x, y, z, range]
-for gameNum in range(10):
+for gameNum in range(1):
     #Parameters definition
     timeDeltaSameClicks=0.00 #was 0.01
     waitAfterButtonsClickable=5
@@ -197,20 +198,25 @@ for gameNum in range(10):
         #print('TheLoop: reading instruments ..')
         startTime=time.time()
         controlPanel.readInstruments()
-        readInstrumentsTime=time.time()
-        print('Current error  = ',controlPanel.currentErrorArray)
-        print('Current rate   = ',controlPanel.currentRateArray)
-        print('Desired rate   = ',controlPanel.desiredRateArray)
-        print('Desired clicks = ',controlPanel.executeClicksArray)
-        print('Current clicks = ',controlPanel.currentClicksArray)
-        print('Executing clicks = ',controlPanel.executeClicksArray)
+        if controlPanel.currentErrorArray[6]>0.5:
+            controlPanel.translationRateParamZ=controlPanel.translationRateParamZfast
+        else:
+            controlPanel.translationRateParamZ=controlPanel.translationRateParamZslow
+        print('translation rate param Z  = ',controlPanel.translationRateParamZ)
+        #readInstrumentsTime=time.time()
+        #print('Current error  = ',controlPanel.currentErrorArray)
+        #print('Current rate   = ',controlPanel.currentRateArray)
+        #print('Desired rate   = ',controlPanel.desiredRateArray)
+        #print('Desired clicks = ',controlPanel.executeClicksArray)
+        #print('Current clicks = ',controlPanel.currentClicksArray)
+        #print('Executing clicks = ',controlPanel.executeClicksArray)
         controlPanel.calcClicksArray()
         calcClicksTime=time.time()
         controlPanel.clickButtonsArray()
         clickButtonsTime=time.time()
-        if controlPanel.timeFlag: print('ReadInstruments Time Js = ',round(controlPanel.readInstrumentsTimeErrorsFinished-controlPanel.readInstrumentsTimeStart,2))
-        if controlPanel.timeFlag: print('ReadInstruments Time Xpath = ',round(controlPanel.readInstrumentsTimeRatesFinished-controlPanel.readInstrumentsTimeErrorsFinished,2))
-        if controlPanel.timeFlag: print('ReadInstruments Time calcZ = ',round(controlPanel.calcZtimes-controlPanel.readInstrumentsTimeRatesFinished,2))
+        #if controlPanel.timeFlag: print('ReadInstruments Time Js = ',round(controlPanel.readInstrumentsTimeErrorsFinished-controlPanel.readInstrumentsTimeStart,2))
+        #if controlPanel.timeFlag: print('ReadInstruments Time Xpath = ',round(controlPanel.readInstrumentsTimeRatesFinished-controlPanel.readInstrumentsTimeErrorsFinished,2))
+        #if controlPanel.timeFlag: print('ReadInstruments Time calcZ = ',round(controlPanel.calcZtimes-controlPanel.readInstrumentsTimeRatesFinished,2))
         #print('Total ReadInstruments Time = ',round(readInstrumentsTime-startTime,2))
         #print('calcClicks Time = ',round(calcClicksTime-readInstrumentsTime,2))
         #print('clickButtons Time = ',round(clickButtonsTime-calcClicksTime,2))
@@ -227,7 +233,7 @@ for gameNum in range(10):
         loopTotalTime=time.time()-loopStartTime
         print('Total docking time =',round(loopTotalTime,2))
         writeString='Fail!! translationRateParamXY='+str(controlPanel.translationRateParamXY)+' translationRateParamXY='+str(controlPanel.translationRateParamZ)+' | Total docking time ='+str(round(loopTotalTime,2))+' seconds \n'
-        print('Fail!! translationRateParamXY=',controlPanel.translationRateParamXY,' translationRateParamXY=',controlPanel.translationRateParamZ)
+        print('Fail!! translationRateParamXY=',controlPanel.translationRateParamXY,' translationRateParamZ=',controlPanel.translationRateParamZ)
         with open("iss_sim_autopylot_log.txt", "a") as f:
             f.write(writeString)
     browser.close()
