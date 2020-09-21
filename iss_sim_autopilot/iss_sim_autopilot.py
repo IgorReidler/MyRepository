@@ -48,8 +48,11 @@ class controlPanelClass():
         self.rotationRateParam=0.03
         self.translationRateParamXY=0.2 #last success with 0.06 (Sep2020 0.5)
         self.translationRateParamZ=0.035  #last success with 0.045
-        self.translationRateParamZfast=50
-        self.translationRateParamZslow=0.045 #(same as self.translationRateParamZ=0.035)
+        
+        self.gearShiftDistance=1 #distance at which to switch between translationRateParamZfast and translationRateParamZslow
+        self.translationRateParamZfast=0.07
+        self.translationRateParamZslow=0.04 #(same as self.translationRateParamZ=0.035 was good)
+        
         self.rateParamsArray=[self.rotationRateParam,self.rotationRateParam,self.rotationRateParam,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamZ]
         self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.ratePerClickTranslationZ]
         #array [roll, pitch, yaw, x, y, z, range]
@@ -103,7 +106,7 @@ class controlPanelClass():
 
     def calcClicksArray(self):
         #self.desiredRateArray=np.power(self.currentErrorArray,2)
-        #print('Using translationRateParamZ='+self.translationRateParamZ)
+        print('Using translationRateParamZ='+str(self.rateParamsArray[6]))
         self.desiredRateArray=np.multiply(self.currentErrorArray,self.rateParamsArray)
         self.desiredRateArray[5]=self.desiredRateArray[5]+self.rateDeltaGravity #Gravity correction
         self.desiredRateArray=np.clip(self.desiredRateArray,self.rateParamsMinArray,self.rateParamsMaxArray)
@@ -202,11 +205,11 @@ for gameNum in range(1):
         #print('TheLoop: reading instruments ..')
         startTime=time.time()
         controlPanel.readInstruments()
-        if controlPanel.currentErrorArray[6]>0.5:
-            #controlPanel.rateParamsArray[6]=controlPanel.translationRateParamZfast
-            controlPanel.translationRateParamZ=controlPanel.translationRateParamZfast
+        if controlPanel.currentErrorArray[6]>controlPanel.gearShiftDistance:
+            controlPanel.rateParamsArray[6]=-controlPanel.translationRateParamZfast
+            #controlPanel.translationRateParamZ=controlPanel.translationRateParamZfast
         else:
-            controlPanel.translationRateParamZ=controlPanel.translationRateParamZslow
+            controlPanel.rateParamsArray[6]=-controlPanel.translationRateParamZslow
         print('translation rate param Z  = ',controlPanel.translationRateParamZ)
         rangeZList.append(controlPanel.currentErrorArray[6])
         rangeTimeList.append(round(time.time()-loopStartTime,2))
@@ -238,7 +241,7 @@ for gameNum in range(1):
     elif failElem.is_displayed():
         loopTotalTime=time.time()-loopStartTime
         print('Total docking time =',round(loopTotalTime,2))
-        writeString='Fail!! translationRateParamXY='+str(controlPanel.translationRateParamXY)+' translationRateParamXY='+str(controlPanel.translationRateParamZ)+' | Total docking time ='+str(round(loopTotalTime,2))+' seconds \n'
+        writeString='Fail!! translationRateParamZfast='+str(controlPanel.translationRateParamZfast)+' translationRateParamZslow='+str(controlPanel.translationRateParamZslow)+' gearShiftDistance='+str(controlPanel.gearShiftDistance)+' | Total docking time ='+str(round(loopTotalTime,2))+' seconds \n'
         print('Fail!! translationRateParamXY=',controlPanel.translationRateParamXY,' translationRateParamZ=',controlPanel.translationRateParamZ)
         with open("iss_sim_autopylot_log.txt", "a") as f:
             f.write(writeString)
