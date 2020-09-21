@@ -33,9 +33,7 @@ class controlPanelClass():
         #self.jsArray = np.empty([7], dtype="S7")
         self.xyClicksParam=1 #was 1/3
         self.timeFlag=0
-
         self.calcRatesFlag=1 #calculate translation rate from error (true) or from clicks (false)
-
         self.timeDeltaErrorUpdates=0
         self.timePrevErrorUpdate=0
         self.timeCurrentErrorUpdate=0
@@ -44,14 +42,14 @@ class controlPanelClass():
         self.ratePerClickTranslation=0.06
         self.ratePerClickTranslationZ=0.045
         self.rateDeltaGravity=0.0000 #was 0.0098 (0 is correct)
-        
-        self.rotationRateParam=0.03
+        self.rotationRateParam=0.06 #(success 0.03)
         self.translationRateParamXY=0.2 #last success with 0.06 (Sep2020 0.5)
-        self.translationRateParamZ=0.035  #last success with 0.045
+        self.translationRateParamZ=0.035  #last success with 0.035
         
-        self.gearShiftDistance=1 #distance at which to switch between translationRateParamZfast and translationRateParamZslow
+        #speed parameters
+        self.gearShiftDistance=5 #distance at which to switch between translationRateParamZfast and translationRateParamZslow
         self.translationRateParamZfast=0.07
-        self.translationRateParamZslow=0.04 #(same as self.translationRateParamZ=0.035 was good)
+        self.translationRateParamZslow=0.05 #(same as self.translationRateParamZ=0.035 was good)
         
         self.rateParamsArray=[self.rotationRateParam,self.rotationRateParam,self.rotationRateParam,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamZ]
         self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.ratePerClickTranslationZ]
@@ -233,7 +231,7 @@ for gameNum in range(1):
     if successElem.is_displayed():
         loopTotalTime=time.time()-loopStartTime
         print('Total docking time =',round(loopTotalTime,2))
-        writeString='Success!! translationRateParamXY='+str(controlPanel.translationRateParamXY)+' translationRateParamXY='+str(controlPanel.translationRateParamZ)+' | Total docking time ='+str(round(loopTotalTime,2))+' seconds \n'
+        writeString='Success!! '+'rotationRateParam='+str(controlPanel.rotationRateParam)+' translationRateParamZfast='+str(controlPanel.translationRateParamZfast)+' translationRateParamZslow='+str(controlPanel.translationRateParamZslow)+' gearShiftDistance='+str(controlPanel.gearShiftDistance)+' | Total docking time ='+str(round(loopTotalTime,2))+' seconds \n'
         print('Success!! translationRateParamXY=',controlPanel.translationRateParamXY,' translationRateParamXY=',controlPanel.translationRateParamZ)
         with open("iss_sim_autopylot_log.txt", "a") as f:
             f.write(writeString)
@@ -241,7 +239,7 @@ for gameNum in range(1):
     elif failElem.is_displayed():
         loopTotalTime=time.time()-loopStartTime
         print('Total docking time =',round(loopTotalTime,2))
-        writeString='Fail!! translationRateParamZfast='+str(controlPanel.translationRateParamZfast)+' translationRateParamZslow='+str(controlPanel.translationRateParamZslow)+' gearShiftDistance='+str(controlPanel.gearShiftDistance)+' | Total docking time ='+str(round(loopTotalTime,2))+' seconds \n'
+        writeString='Fail!! '+'rotationRateParam='+str(controlPanel.rotationRateParam)+' translationRateParamZfast='+str(controlPanel.translationRateParamZfast)+' translationRateParamZslow='+str(controlPanel.translationRateParamZslow)+' gearShiftDistance='+str(controlPanel.gearShiftDistance)+' | Total docking time ='+str(round(loopTotalTime,2))+' seconds \n'
         print('Fail!! translationRateParamXY=',controlPanel.translationRateParamXY,' translationRateParamZ=',controlPanel.translationRateParamZ)
         with open("iss_sim_autopylot_log.txt", "a") as f:
             f.write(writeString)
