@@ -4,6 +4,7 @@
 
 import numpy as np
 import time
+import matplotlib.pyplot as plt
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -102,6 +103,7 @@ class controlPanelClass():
 
     def calcClicksArray(self):
         #self.desiredRateArray=np.power(self.currentErrorArray,2)
+        #print('Using translationRateParamZ='+self.translationRateParamZ)
         self.desiredRateArray=np.multiply(self.currentErrorArray,self.rateParamsArray)
         self.desiredRateArray[5]=self.desiredRateArray[5]+self.rateDeltaGravity #Gravity correction
         self.desiredRateArray=np.clip(self.desiredRateArray,self.rateParamsMinArray,self.rateParamsMaxArray)
@@ -193,16 +195,21 @@ for gameNum in range(1):
     failElem=browser.find_element_by_id('fail-button')
     #The loop
     loopStartTime=time.time()
+    rangeZList=[]
+    rangeTimeList=[]
     while not (successElem.is_displayed() or failElem.is_displayed()):
         print('.... Running the loop ....')
         #print('TheLoop: reading instruments ..')
         startTime=time.time()
         controlPanel.readInstruments()
         if controlPanel.currentErrorArray[6]>0.5:
+            #controlPanel.rateParamsArray[6]=controlPanel.translationRateParamZfast
             controlPanel.translationRateParamZ=controlPanel.translationRateParamZfast
         else:
             controlPanel.translationRateParamZ=controlPanel.translationRateParamZslow
         print('translation rate param Z  = ',controlPanel.translationRateParamZ)
+        rangeZList.append(controlPanel.currentErrorArray[6])
+        rangeTimeList.append(round(time.time()-loopStartTime,2))
         #readInstrumentsTime=time.time()
         #print('Current error  = ',controlPanel.currentErrorArray)
         #print('Current rate   = ',controlPanel.currentRateArray)
@@ -228,7 +235,6 @@ for gameNum in range(1):
         with open("iss_sim_autopylot_log.txt", "a") as f:
             f.write(writeString)
         loopTotalTime=time.time()-loopStartTime
-        print('Total docking time =',round(loopTotalTime,2))
     elif failElem.is_displayed():
         loopTotalTime=time.time()-loopStartTime
         print('Total docking time =',round(loopTotalTime,2))
@@ -237,3 +243,11 @@ for gameNum in range(1):
         with open("iss_sim_autopylot_log.txt", "a") as f:
             f.write(writeString)
     browser.close()
+    
+    plt.plot(rangeTimeList,rangeZList)
+    plt.ylabel('Range from ISS (m)')
+    plt.xlabel('Time (s))')
+    svgName='range_'+time.strftime("%Y%m%d_%H%M%S")+'.svg'
+    plt.savefig(svgName)
+    plt.draw()
+plt.show()
