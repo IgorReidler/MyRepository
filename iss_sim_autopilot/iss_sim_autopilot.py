@@ -60,9 +60,13 @@ class controlPanelClass():
         self.readInstrumentsTimeStart=time.time()
         self.previousErrorArray=np.copy(self.currentErrorArray) #save last current error array to previous
         self.timePrevErrorUpdate = self.timeCurrentErrorUpdate #save last current time array to previous
-        self.currentErrorArray[0] = float(browser.execute_script("return fixedRotationZ;"))
-        self.currentErrorArray[1] = float(browser.execute_script("return fixedRotationX;"))
-        self.currentErrorArray[2] = float(browser.execute_script("return fixedRotationY;"))         
+        #self.currentErrorArray[0] = float(browser.execute_script("return fixedRotationZ;"))
+        #self.currentErrorArray[1] = float(browser.execute_script("return fixedRotationX;"))
+        #self.currentErrorArray[2] = float(browser.execute_script("return fixedRotationY;"))
+
+        self.currentErrorArray[0]  =float(browser.execute_script("return camera.rotation.z;"))*180/3.1415
+        self.currentErrorArray[1]  =float(browser.execute_script("return camera.rotation.x;"))*180/3.1415
+        self.currentErrorArray[2]  =float(browser.execute_script("return camera.rotation.y;"))*180/3.1415          
         #Translation Error
         #self.currentErrorArray[3]  =float(browser.find_element_by_xpath("//div[@id='x-range']/div[@class='distance']").text[:-1])
         #self.currentErrorArray[4]  =float(browser.find_element_by_xpath("//div[@id='y-range']/div[@class='distance']").text[:-1])
