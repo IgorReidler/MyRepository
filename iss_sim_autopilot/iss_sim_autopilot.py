@@ -166,13 +166,13 @@ class controlPanelClass():
         browser.execute_script(self.jsExecuteString) #execute the string
 
 #array [roll, pitch, yaw, x, y, z, range]
-for gameNum in range(1):
+for gameNum in range(10):
     #Parameters definition
     timeDeltaSameClicks=0.00 #was 0.01
     waitAfterButtonsClickable=5
 
     #chromedriver
-    chromedriver = "C:\\Users\\igor.reidler\\OneDrive - Innoviz Technologies\\Documents\\Python\\chromedriver\\chromedriver.exe"
+    chromedriver = r"E:\myproj\Python\chromedriver\chromedriver.exe"
     browser=webdriver.Chrome(chromedriver)
     #open chrome with the following address
     browser.get("https://iss-sim.spacex.com/")
@@ -212,12 +212,12 @@ for gameNum in range(1):
         rangeZList.append(controlPanel.currentErrorArray[6])
         rangeTimeList.append(round(time.time()-loopStartTime,2))
         #readInstrumentsTime=time.time()
-        #print('Current error  = ',controlPanel.currentErrorArray)
-        #print('Current rate   = ',controlPanel.currentRateArray)
-        #print('Desired rate   = ',controlPanel.desiredRateArray)
-        #print('Desired clicks = ',controlPanel.executeClicksArray)
-        #print('Current clicks = ',controlPanel.currentClicksArray)
-        #print('Executing clicks = ',controlPanel.executeClicksArray)
+        print('Current error  = ',controlPanel.currentErrorArray)
+        print('Current rate   = ',controlPanel.currentRateArray)
+        print('Desired rate   = ',controlPanel.desiredRateArray)
+        print('Desired clicks = ',controlPanel.executeClicksArray)
+        print('Current clicks = ',controlPanel.currentClicksArray)
+        print('Executing clicks = ',controlPanel.executeClicksArray)
         controlPanel.calcClicksArray()
         calcClicksTime=time.time()
         controlPanel.clickButtonsArray()
