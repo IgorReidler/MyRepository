@@ -4,6 +4,8 @@
 
 import numpy as np
 import time
+import datetime
+import pause
 import matplotlib.pyplot as plt
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -45,6 +47,7 @@ class controlPanelClass():
         self.rotationRateParam=0.06 #(success 0.03)
         self.translationRateParamXY=0.2 #last success with 0.06 (Sep2020 0.5)
         self.translationRateParamZ=0.035  #last success with 0.035
+        self.readInstrumentsTime=0.3
         
         #speed parameters
         self.gearShiftDistance=5 #distance at which to switch between translationRateParamZfast and translationRateParamZslow
@@ -55,6 +58,8 @@ class controlPanelClass():
         self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.ratePerClickTranslationZ]
         #array [roll, pitch, yaw, x, y, z, range]
     def readInstruments(self):
+        readStartTime = datetime.datetime.today()
+        readEndTime = readStartTime + datetime.timedelta(0,self.readInstrumentsTime) # days, seconds, then other fields.
     #try:
         #self.readInstrumentsTimeStart=time.time()
         #self.previousErrorArray=np.copy(self.currentErrorArray) #save last current error array to previous
@@ -72,7 +77,7 @@ class controlPanelClass():
         self.currentRateArray[0]    = self.readArray[6]/10
         self.currentRateArray[1]    = self.readArray[7]/10
         self.currentRateArray[2]    = self.readArray[8]/10        
-        self.currentRateArray[6]    = self.readArray[9]/10
+        self.currentRateArray[6]    = self.readArray[9]
         self.currentRateArray[4]    = self.readArray[10]*60
         self.currentRateArray[5]    = self.readArray[11]*60
         #Translation Error
@@ -95,23 +100,9 @@ class controlPanelClass():
         ##self.currentRateArray[4]  = browser.execute_script("return motionVector.x*60;")
         ##self.currentRateArray[5]  = browser.execute_script("return motionVector.y*60;")
         #print('rate m =',round(self.currentRateArray[4],3),' ',round(self.currentRateArray[5],3))
-    
-#Translation Rates calc         
-        #Calculate y, z rates
-        if not self.firstreadInstruments:
-            #self.timeDeltaErrorUpdates = self.timeCurrentErrorUpdate - self.timePrevErrorUpdate
-            #self.currentRateArray[4:6]=np.subtract(self.currentErrorArray[4: 6],self.previousErrorArray[4:6])
-            #self.currentRateArray[4:6]=np.divide(self.currentRateArray[4:6],self.timeDeltaErrorUpdates)
-            #print('rate c =',self.currentRateArray[4],' ',self.currentRateArray[5])
-            print('skip rate calc')
-        self.firstreadInstruments=False
-
-        if self.timeFlag: self.calcZtimes=time.time()
-    #except:
-        #print('Docking simulation ended')
-        #self.dockingTotalTime=time.time()-dockingStartTime
-        #print('Total docking time =',round(self.dockingTotalTime,2))
-        #self.runFlag=0
+        
+        ##pause.until(readEndTime)
+        
         #exit()
 
     def calcClicksArray(self):
