@@ -30,8 +30,10 @@ class controlPanelClass():
         self.rateParamsArray=np.zeros(7)
         self.ratePerClickArray=np.zeros(7)
         self.jsArray=['a','a','a','a','a','a','a'] #init js array
-        self.rateParamsMaxArray=[1,1,1,3,3,3,5] #successful (but slow) was [1,1,1,1,1,1,2]
-        self.rateParamsMinArray=[-1,-1,-1,-3,-3,-3,-5] #successful (but slow) was [1,1,1,1,1,1,-2]
+        self.rateParamsMaxArray=[2,2,2,10,10,10,10]
+        self.rateParamsMinArray=[-2,-2,-2,-10,-10,-10,-10]
+        #self.rateParamsMaxArray=[1,1,1,3,3,3,10] #successful (but slow) was [1,1,1,1,1,1,2]
+        #self.rateParamsMinArray=[-1,-1,-1,-3,-3,-3,-5] #successful (but slow) was [1,1,1,1,1,1,-2]
         #self.jsArray = np.empty([7], dtype="S7")
         self.xyClicksParam=1 #was 1/3
         self.timeFlag=0
@@ -44,15 +46,15 @@ class controlPanelClass():
         self.ratePerClickTranslation=0.06
         self.ratePerClickTranslationZ=0.045
         self.rateDeltaGravity=0.0000 #was 0.0098 (0 is correct)
-        self.rotationRateParam=0.2 #(success 0.06)
-        self.translationRateParamXY=0.2 #last success with 0.06 (Sep2020 0.5)
+        self.rotationRateParam=0.8 #(success 0.06)
+        self.translationRateParamXY=1 #last success with 0.06 (Sep2020 0.5)
         self.translationRateParamZ=0.035  #last success with 0.035
         self.readInstrumentsTime=0.3
         
         #speed parameters
         self.gearShiftDistance=5 #distance at which to switch between translationRateParamZfast and translationRateParamZslow
-        self.translationRateParamZfast=0.1
-        self.translationRateParamZslow=0.1 #(same as self.translationRateParamZ=0.035 was good)
+        self.translationRateParamZfast=0.12
+        self.translationRateParamZslow=0.12 #(same as self.translationRateParamZ=0.035 was good)
         
         self.rateParamsArray=[self.rotationRateParam,self.rotationRateParam,self.rotationRateParam,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamZ]
         self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.ratePerClickTranslationZ]
@@ -85,6 +87,8 @@ class controlPanelClass():
         self.desiredRateArray=np.multiply(self.currentErrorArray,self.rateParamsArray)
         self.desiredRateArray[5]=self.desiredRateArray[5]+self.rateDeltaGravity #Gravity correction
         self.desiredRateArray=np.clip(self.desiredRateArray,self.rateParamsMinArray,self.rateParamsMaxArray)
+        if self.currentRateArray[6]>-0.05: #min rate 0.15
+            self.desiredRateArray[6]=-0.05
         self.deltaRateArray=np.subtract(self.desiredRateArray,self.currentRateArray)
         self.executeClicksArray=np.divide(self.deltaRateArray,self.ratePerClickArray)
         self.executeClicksArray=np.sign(self.executeClicksArray) * np.ceil(np.abs(self.executeClicksArray))
@@ -215,6 +219,7 @@ for gameNum in range(10):
         print('Fail!! translationRateParamXY=',controlPanel.translationRateParamXY,' translationRateParamZ=',controlPanel.translationRateParamZ)
         with open("iss_sim_autopylot_log.txt", "a") as f:
             f.write(writeString)
+    time.sleep(5)
     browser.close()
     
     plt.plot(rangeTimeList,rangeZList)
