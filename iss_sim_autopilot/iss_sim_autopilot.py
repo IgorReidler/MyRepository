@@ -30,8 +30,8 @@ class controlPanelClass():
         self.rateParamsArray=np.zeros(7)
         self.ratePerClickArray=np.zeros(7)
         self.jsArray=['a','a','a','a','a','a','a'] #init js array
-        self.rateParamsMaxArray=[2,2,2,10,10,10,10]
-        self.rateParamsMinArray=[-2,-2,-2,-10,-10,-10,-10]
+        self.rateParamsMaxArray=[2,2,2,10,10,10,10] #was [2,2,2,10,10,10,10]
+        self.rateParamsMinArray=[-2,-2,-2,-10,-10,-10,-10] #was [-2,-2,-2,-10,-10,-10,-10]
         #self.rateParamsMaxArray=[1,1,1,3,3,3,10] #successful (but slow) was [1,1,1,1,1,1,2]
         #self.rateParamsMinArray=[-1,-1,-1,-3,-3,-3,-5] #successful (but slow) was [1,1,1,1,1,1,-2]
         #self.jsArray = np.empty([7], dtype="S7")
@@ -46,8 +46,8 @@ class controlPanelClass():
         self.ratePerClickTranslation=0.06
         self.ratePerClickTranslationZ=0.045
         self.rateDeltaGravity=0.0000 #was 0.0098 (0 is correct)
-        self.rotationRateParam=0.8 #(success 0.06)
-        self.translationRateParamXY=1 #last success with 0.06 (Sep2020 0.5)
+        self.rotationRateParam=0.8 #(success 0.8)
+        self.translationRateParamXY=1 #last success with 1.0 
         self.translationRateParamZ=0.035  #last success with 0.035
         self.readInstrumentsTime=0.3
         
@@ -86,9 +86,9 @@ class controlPanelClass():
     def calcClicksArray(self):
         self.desiredRateArray=np.multiply(self.currentErrorArray,self.rateParamsArray)
         self.desiredRateArray[5]=self.desiredRateArray[5]+self.rateDeltaGravity #Gravity correction
-        self.desiredRateArray=np.clip(self.desiredRateArray,self.rateParamsMinArray,self.rateParamsMaxArray)
+        #self.desiredRateArray=np.clip(self.desiredRateArray,self.rateParamsMinArray,self.rateParamsMaxArray)
         if self.currentRateArray[6]>-0.05: #min rate 0.15
-            self.desiredRateArray[6]=-0.05
+            self.desiredRateArray[6]=-0.05 #working -0.05
         self.deltaRateArray=np.subtract(self.desiredRateArray,self.currentRateArray)
         self.executeClicksArray=np.divide(self.deltaRateArray,self.ratePerClickArray)
         self.executeClicksArray=np.sign(self.executeClicksArray) * np.ceil(np.abs(self.executeClicksArray))
@@ -140,7 +140,7 @@ class controlPanelClass():
         browser.execute_script(self.jsExecuteString) #execute the string
 
 #array [roll, pitch, yaw, x, y, z, range]
-for gameNum in range(10):
+for gameNum in range(2):
     #Parameters definition
     timeDeltaSameClicks=0.00 #was 0.01
     waitAfterButtonsClickable=5
