@@ -30,8 +30,8 @@ class controlPanelClass():
         self.rateParamsArray=np.zeros(7)
         self.ratePerClickArray=np.zeros(7)
         self.jsArray=['a','a','a','a','a','a','a'] #init js array
-        self.rateParamsMaxArray=[2,2,2,10,10,10,10] #was [2,2,2,10,10,10,10]
-        self.rateParamsMinArray=[-2,-2,-2,-10,-10,-10,-10] #was [-2,-2,-2,-10,-10,-10,-10]
+        self.rateParamsMaxArray=[2,2,2,10,10,10,10]
+        self.rateParamsMinArray=[-2,-2,-2,-10,-10,-10,-10]
         #self.rateParamsMaxArray=[1,1,1,3,3,3,10] #successful (but slow) was [1,1,1,1,1,1,2]
         #self.rateParamsMinArray=[-1,-1,-1,-3,-3,-3,-5] #successful (but slow) was [1,1,1,1,1,1,-2]
         #self.jsArray = np.empty([7], dtype="S7")
@@ -46,15 +46,15 @@ class controlPanelClass():
         self.ratePerClickTranslation=0.06
         self.ratePerClickTranslationZ=0.045
         self.rateDeltaGravity=0.0000 #was 0.0098 (0 is correct)
-        self.rotationRateParam=0.8 #(success 0.8)
-        self.translationRateParamXY=1 #last success with 1.0 
+        self.rotationRateParam=0.8 #(success 0.06)
+        self.translationRateParamXY=1 #last success with 0.06 (Sep2020 0.5)
         self.translationRateParamZ=0.035  #last success with 0.035
         self.readInstrumentsTime=0.3
         
         #speed parameters
         self.gearShiftDistance=5 #distance at which to switch between translationRateParamZfast and translationRateParamZslow
-        self.translationRateParamZfast=0.12
-        self.translationRateParamZslow=0.12 #(same as self.translationRateParamZ=0.035 was good)
+        self.translationRateParamZfast=0.2
+        self.translationRateParamZslow=0.2 #(same as self.translationRateParamZ=0.035 was good)
         
         self.rateParamsArray=[self.rotationRateParam,self.rotationRateParam,self.rotationRateParam,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamZ]
         self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.ratePerClickTranslationZ]
@@ -86,9 +86,11 @@ class controlPanelClass():
     def calcClicksArray(self):
         self.desiredRateArray=np.multiply(self.currentErrorArray,self.rateParamsArray)
         self.desiredRateArray[5]=self.desiredRateArray[5]+self.rateDeltaGravity #Gravity correction
-        #self.desiredRateArray=np.clip(self.desiredRateArray,self.rateParamsMinArray,self.rateParamsMaxArray)
-        if self.currentRateArray[6]>-0.05: #min rate 0.15
-            self.desiredRateArray[6]=-0.05 #working -0.05
+        self.desiredRateArray=np.clip(self.desiredRateArray,self.rateParamsMinArray,self.rateParamsMaxArray)
+        print('range=',self.currentErrorArray[6])
+        if self.currentErrorArray[6]<8:
+            print('setting desired rate to -0.15')
+            self.desiredRateArray[6]=-0.10
         self.deltaRateArray=np.subtract(self.desiredRateArray,self.currentRateArray)
         self.executeClicksArray=np.divide(self.deltaRateArray,self.ratePerClickArray)
         self.executeClicksArray=np.sign(self.executeClicksArray) * np.ceil(np.abs(self.executeClicksArray))
@@ -140,7 +142,7 @@ class controlPanelClass():
         browser.execute_script(self.jsExecuteString) #execute the string
 
 #array [roll, pitch, yaw, x, y, z, range]
-for gameNum in range(2):
+for gameNum in range(20):
     #Parameters definition
     timeDeltaSameClicks=0.00 #was 0.01
     waitAfterButtonsClickable=5
@@ -179,7 +181,6 @@ for gameNum in range(2):
         #print('TheLoop: reading instruments ..')
         startTime=time.time()
         controlPanel.readInstruments()
-        currentRateZList.append(controlPanel.currentRateArray[6])
         time1=time.time()
         if controlPanel.currentErrorArray[6]>controlPanel.gearShiftDistance:
             controlPanel.rateParamsArray[6]=-controlPanel.translationRateParamZfast
@@ -188,11 +189,12 @@ for gameNum in range(2):
             controlPanel.rateParamsArray[6]=-controlPanel.translationRateParamZslow
         #print('translation rate param Z  = ',controlPanel.translationRateParamZ)
         rangeZList.append(controlPanel.currentErrorArray[6])
+        currentRateZList.append(controlPanel.currentRateArray[6])
         desiredRateZList.append(controlPanel.desiredRateArray[6])
         rangeTimeList.append(round(time.time()-loopStartTime,2))
         #print('Current error  = ',controlPanel.currentErrorArray)
         #print('Current rate   = ',controlPanel.currentRateArray)
-        #print('Desired rate   = ',controlPanel.desiredRateArray)
+        print('Desired rate   = ',controlPanel.desiredRateArray)
         #print('Desired clicks = ',controlPanel.executeClicksArray)
         #print('Current clicks = ',controlPanel.currentClicksArray)
         #print('Executing clicks = ',controlPanel.executeClicksArray)
@@ -226,14 +228,15 @@ for gameNum in range(2):
     time.sleep(5)
     browser.close()
     
-    fig, axs = plt.subplots(3)
+    fig, (ax1, ax2, ax3) = plt.subplots(3)
     fig.suptitle('Stats')
-    axs[0].plot(rangeTimeList,rangeZList)
-    axs[1].plot(rangeTimeList,currentRateZList)
-    axs[2].plot(rangeTimeList,desiredRateZList)
-
+    ax1.plot(rangeTimeList,rangeZList)
+    ax2.plot(rangeTimeList,currentRateZList)
+    ax3.plot(rangeTimeList,desiredRateZList)
+    
     plt.ylabel('Range from ISS (m)')
     plt.xlabel('Time (s))')
+    plt.legend(["blue", "green"], loc ="lower right") 
     svgName='range_'+time.strftime("%Y%m%d_%H%M%S")+'.svg'
     plt.savefig(svgName)
     plt.draw()
