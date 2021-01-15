@@ -48,27 +48,18 @@ class controlPanelClass():
         self.rateDeltaGravity=0.0000 #was 0.0098 (0 is correct)
         self.rotationRateParam=0.8 #(success 0.8)
         self.translationRateParamXY=1 #last success with 1.0 
-        self.translationRateParamZ=0.035  #last success with 0.035
+        self.translationRateParamZ=0.12  #last success with 0.035
         self.readInstrumentsTime=0.3
-        
+        self.desiredRateZarray=np.array([-10,-2,-0.1])
+        self.desiredMaxDistForRateZarray=np.array([50,5])
+
         #speed parameters
-        self.gearShiftDistance=5 #distance at which to switch between translationRateParamZfast and translationRateParamZslow
-        self.translationRateParamZfast=0.12
-        self.translationRateParamZslow=0.12 #(same as self.translationRateParamZ=0.035 was good)
+        self.translationRateParamZ=0.035 #(same as self.translationRateParamZ=0.035 was good)
         
         self.rateParamsArray=[self.rotationRateParam,self.rotationRateParam,self.rotationRateParam,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamXY,-self.translationRateParamZ]
         self.ratePerClickArray=[self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickRotation,self.ratePerClickTranslation,self.ratePerClickTranslation,self.ratePerClickTranslation,-self.ratePerClickTranslationZ]
         #array [roll, pitch, yaw, x, y, z, range]
     def readInstruments(self):
-        readStartTime = datetime.datetime.today()
-        readEndTime = readStartTime + datetime.timedelta(0,self.readInstrumentsTime) # days, seconds, then other fields.
-    #try:
-        #self.readInstrumentsTimeStart=time.time()
-        #self.previousErrorArray=np.copy(self.currentErrorArray) #save last current error array to previous
-        #self.timePrevErrorUpdate = self.timeCurrentErrorUpdate #save last current time array to previous
-        #self.currentErrorArray[0] = float(browser.execute_script("return fixedRotationZ;"))
-        #self.currentErrorArray[1] = float(browser.execute_script("return fixedRotationX;"))
-        #self.currentErrorArray[2] = float(browser.execute_script("return fixedRotationY;"))
         self.readArray=browser.execute_script("return [camera.rotation.z,camera.rotation.x,camera.rotation.y,camera.position.x,camera.position.y,prevRange,rateRotationZ,rateRotationX,rateRotationY,rateCurrent,motionVector.x,motionVector.y];")
         self.currentErrorArray[0]  =float(self.readArray[0])*180/3.1415
         self.currentErrorArray[1]  =float(self.readArray[1])*180/3.1415
@@ -86,20 +77,12 @@ class controlPanelClass():
     def calcClicksArray(self):
         self.desiredRateArray=np.multiply(self.currentErrorArray,self.rateParamsArray)
         self.desiredRateArray[5]=self.desiredRateArray[5]+self.rateDeltaGravity #Gravity correction
-        #self.desiredRateArray=np.clip(self.desiredRateArray,self.rateParamsMinArray,self.rateParamsMaxArray)
         if self.currentRateArray[6]>-0.05: #min rate 0.15
             self.desiredRateArray[6]=-0.05 #working -0.05
         self.deltaRateArray=np.subtract(self.desiredRateArray,self.currentRateArray)
         self.executeClicksArray=np.divide(self.deltaRateArray,self.ratePerClickArray)
         self.executeClicksArray=np.sign(self.executeClicksArray) * np.ceil(np.abs(self.executeClicksArray))
         self.executeClicksArray=self.executeClicksArray.astype(int)        
-        ##Big red button
-        #self.currentErrorArrayAbs=np.absolute(self.currentErrorArray)
-        #if self.currentErrorArrayAbs[0]<0.1 and self.currentErrorArrayAbs[1]<0.1 and self.currentErrorArrayAbs[2]<0.1 and self.currentErrorArrayAbs[3]<0.4 and self.currentErrorArrayAbs[4]<0.2 and self.currentErrorArrayAbs[5]<0.2:
-        #      self.executeClicksArray=[0,0,0,0,0,0,3]
-        #      #self.translationRateParamZ=0.1
-        #      print('Big red button activated!!!!!!!!!!!!!!!!!!!')
-
     def clickButtonsArray(self):
         self.currentClicksArray=np.add(self.currentClicksArray,self.executeClicksArray)
         if self.executeClicksArray[0]>=0:
@@ -142,7 +125,6 @@ class controlPanelClass():
 #array [roll, pitch, yaw, x, y, z, range]
 for gameNum in range(2):
     #Parameters definition
-    timeDeltaSameClicks=0.00 #was 0.01
     waitAfterButtonsClickable=5
 
     #chromedriver
@@ -175,43 +157,18 @@ for gameNum in range(2):
     desiredRateZList=[]
     rangeTimeList=[]
     while not (successElem.is_displayed() or failElem.is_displayed()):
-        #print('.... Running the loop ....')
-        #print('TheLoop: reading instruments ..')
-        startTime=time.time()
-        controlPanel.readInstruments()
+        print('.... Running the loop ....')
+        controlPanel.readInstruments() #Reading instruments
         currentRateZList.append(controlPanel.currentRateArray[6])
-        time1=time.time()
-        if controlPanel.currentErrorArray[6]>controlPanel.gearShiftDistance:
-            controlPanel.rateParamsArray[6]=-controlPanel.translationRateParamZfast
-            #controlPanel.translationRateParamZ=controlPanel.translationRateParamZfast
-        else:
-            controlPanel.rateParamsArray[6]=-controlPanel.translationRateParamZslow
-        #print('translation rate param Z  = ',controlPanel.translationRateParamZ)
         rangeZList.append(controlPanel.currentErrorArray[6])
         desiredRateZList.append(controlPanel.desiredRateArray[6])
         rangeTimeList.append(round(time.time()-loopStartTime,2))
-        #print('Current error  = ',controlPanel.currentErrorArray)
-        #print('Current rate   = ',controlPanel.currentRateArray)
-        #print('Desired rate   = ',controlPanel.desiredRateArray)
-        #print('Desired clicks = ',controlPanel.executeClicksArray)
-        #print('Current clicks = ',controlPanel.currentClicksArray)
-        #print('Executing clicks = ',controlPanel.executeClicksArray)
-        time2=time.time()
-        controlPanel.calcClicksArray()
-        time3=time.time()
-        controlPanel.clickButtonsArray()
-        time4=time.time()
-        #if controlPanel.timeFlag: print('ReadInstruments Time Js = ',round(controlPanel.readInstrumentsTimeErrorsFinished-controlPanel.readInstrumentsTimeStart,2))
-        #if controlPanel.timeFlag: print('ReadInstruments Time Xpath = ',round(controlPanel.readInstrumentsTimeRatesFinished-controlPanel.readInstrumentsTimeErrorsFinished,2))
-        #if controlPanel.timeFlag: print('ReadInstruments Time calcZ = ',round(controlPanel.calcZtimes-controlPanel.readInstrumentsTimeRatesFinished,2))
-        ##print('Total ReadInstruments Time   = ',round(time1-startTime,2))
-        ##print('Stuff time                   = ',round(time2-time1,2))
-        ##print('calcClicks time              = ',round(time3-time2,2))
-        ##print('clickButtons Time            = ',round(time4-time3,2))
+        controlPanel.calcClicksArray() #Calc clicks array
+        controlPanel.clickButtonsArray() #Execute clicks array
     if successElem.is_displayed():
         loopTotalTime=time.time()-loopStartTime
         print('Total docking time =',round(loopTotalTime,2))
-        writeString='Success!! '+'rotationRateParam='+str(controlPanel.rotationRateParam)+' translationRateParamZfast='+str(controlPanel.translationRateParamZfast)+' translationRateParamZslow='+str(controlPanel.translationRateParamZslow)+' gearShiftDistance='+str(controlPanel.gearShiftDistance)+' | Total docking time ='+str(round(loopTotalTime,2))+' seconds \n'
+        writeString='Success!! '+'rotationRateParam='+str(controlPanel.rotationRateParam)+' translationRateParamZ='+str(controlPanel.translationRateParamZ)+' | Total docking time ='+str(round(loopTotalTime,2))+' seconds \n'
         print('Success!! translationRateParamXY=',controlPanel.translationRateParamXY,' translationRateParamXY=',controlPanel.translationRateParamZ)
         with open("iss_sim_autopylot_log.txt", "a") as f:
             f.write(writeString)
@@ -219,7 +176,7 @@ for gameNum in range(2):
     elif failElem.is_displayed():
         loopTotalTime=time.time()-loopStartTime
         print('Total docking time =',round(loopTotalTime,2))
-        writeString='Fail!! '+'rotationRateParam='+str(controlPanel.rotationRateParam)+' translationRateParamZfast='+str(controlPanel.translationRateParamZfast)+' translationRateParamZslow='+str(controlPanel.translationRateParamZslow)+' gearShiftDistance='+str(controlPanel.gearShiftDistance)+' | Total docking time ='+str(round(loopTotalTime,2))+' seconds \n'
+        writeString='Fail!! '+'rotationRateParam='+str(controlPanel.rotationRateParam)+' translationRateParamZ='+str(controlPanel.translationRateParamZ)+' | Total docking time ='+str(round(loopTotalTime,2))+' seconds \n'
         print('Fail!! translationRateParamXY=',controlPanel.translationRateParamXY,' translationRateParamZ=',controlPanel.translationRateParamZ)
         with open("iss_sim_autopylot_log.txt", "a") as f:
             f.write(writeString)
