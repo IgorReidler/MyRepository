@@ -172,6 +172,7 @@ for gameNum in range(2):
         controlPanel.readInstruments() #Reading instruments
         currentRateZList.append(controlPanel.currentRateArray[6])
         rangeZList.append(controlPanel.currentErrorArray[6])
+        print("Current rate = ", controlPanel.currentRateArray[6])
         desiredRateZList.append(controlPanel.desiredRateArray[6])
         rangeTimeList.append(round(time.time()-loopStartTime,2))
         controlPanel.calcClicksArray() #Calc clicks array
@@ -194,15 +195,16 @@ for gameNum in range(2):
     time.sleep(5)
     browser.close()
     
-    fig, axs = plt.subplots(3)
+    fig, axs = plt.subplots(2)
     fig.suptitle('Stats')
-    axs[0].plot(rangeTimeList,rangeZList)
-    axs[1].plot(rangeTimeList,currentRateZList)
-    axs[2].plot(rangeTimeList,desiredRateZList)
+    axs[0].plot(rangeTimeList[1:-20],rangeZList[1:-20])
+    axs[1].plot(rangeTimeList[1:-20],currentRateZList[1:-20])
+    axs[2].plot(rangeTimeList[1:-20],desiredRateZList[1:-20])
 
     plt.ylabel('Range from ISS (m)')
     plt.xlabel('Time (s))')
     svgName='range_'+time.strftime("%Y%m%d_%H%M%S")+'.svg'
     plt.savefig(svgName)
     plt.draw()
+    plt.show()
 plt.show()

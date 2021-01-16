@@ -39,3 +39,7 @@ Success!! rotationRateParam=0.8 translationRateParamZ=0.035 | Total docking time
 Fail!! rotationRateParam=0.8 translationRateParamZ=0.035 | Total docking time =24.98 seconds 
 Success!! rotationRateParam=0.8 translationRateParamZ=0.035 | Total docking time =35.6 seconds 
 Fail!! rotationRateParam=0.8 translationRateParamZ=0.035 | Total docking time =22.02 seconds 
+Success!! rotationRateParam=0.8 translationRateParamZ=0.035 | Total docking time =27.25 seconds 
+Fail!! rotationRateParam=0.8 translationRateParamZ=0.035 | Total docking time =55.37 seconds 
+Success!! rotationRateParam=0.8 translationRateParamZ=0.035 | Total docking time =45.53 seconds 
+Fail!! rotationRateParam=0.8 translationRateParamZ=0.035 | Total docking time =23.13 seconds 

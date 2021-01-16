@@ -1,16 +1,6 @@
 import matplotlib.pyplot as plt
-rangeDist=23
-
-class Switch(dict):
-    def __getitem__(self, item):
-        for key in self.keys():                   # iterate over the intervals
-            if item in key:                       # if the argument is part of that interval
-                return super().__getitem__(key)   # return its associated value
-        raise KeyError(item)                      # if not in any interval, raise KeyError
-
-
-switch = Switch({
-    range(1, 21): 'a',
-    range(21, 31): 'b'
-})
-print(switch(rangeDist))
+import numpy as np
+rangeDist=np.array([1,2,3,4,5,6,7,8])
+plt.plot(rangeDist[0:-2])
+plt.draw()
+plt.show()
