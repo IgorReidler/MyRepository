@@ -1,12 +1,16 @@
 import matplotlib.pyplot as plt
-rangeTimeList=[0.1, 0.2, 0.3]
-rangeZList=[1, 2, 3.5]
-currentRateZList=[1, 2, 3.5]
-desiredRateZList=[1, 2, 3.5]
-fig, axs = plt.subplots(3)
-fig.suptitle('Stats')
-axs[0].plot(rangeTimeList,rangeZList)
-axs[1].plot(rangeTimeList,currentRateZList)
-axs[2].plot(rangeTimeList,desiredRateZList)
-plt.draw()
-plt.show()
+rangeDist=23
+
+class Switch(dict):
+    def __getitem__(self, item):
+        for key in self.keys():                   # iterate over the intervals
+            if item in key:                       # if the argument is part of that interval
+                return super().__getitem__(key)   # return its associated value
+        raise KeyError(item)                      # if not in any interval, raise KeyError
+
+
+switch = Switch({
+    range(1, 21): 'a',
+    range(21, 31): 'b'
+})
+print(switch(rangeDist))

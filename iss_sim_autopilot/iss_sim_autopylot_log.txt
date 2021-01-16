@@ -29,3 +29,13 @@ Success!! rotationRateParam=0.8 translationRateParamZfast=0.12 translationRatePa
 Success!! rotationRateParam=0.8 translationRateParamZfast=0.12 translationRateParamZslow=0.12 gearShiftDistance=5 | Total docking time =53.57 seconds 
 Success!! rotationRateParam=0.8 translationRateParamZfast=0.12 translationRateParamZslow=0.12 gearShiftDistance=5 | Total docking time =53.4 seconds 
 Fail!! rotationRateParam=0.8 translationRateParamZ=0.035 | Total docking time =144.76 seconds 
+Fail!! rotationRateParam=0.8 translationRateParamZ=0.035 | Total docking time =159.34 seconds 
+Fail!! rotationRateParam=0.8 translationRateParamZ=0.035 | Total docking time =21.58 seconds 
+Fail!! rotationRateParam=0.8 translationRateParamZ=0.035 | Total docking time =21.75 seconds 
+Success!! rotationRateParam=0.8 translationRateParamZ=0.035 | Total docking time =33.18 seconds 
+Success!! rotationRateParam=0.8 translationRateParamZ=0.035 | Total docking time =31.01 seconds 
+Fail!! rotationRateParam=0.8 translationRateParamZ=0.035 | Total docking time =54.99 seconds 
+Success!! rotationRateParam=0.8 translationRateParamZ=0.035 | Total docking time =26.6 seconds 
+Fail!! rotationRateParam=0.8 translationRateParamZ=0.035 | Total docking time =24.98 seconds 
+Success!! rotationRateParam=0.8 translationRateParamZ=0.035 | Total docking time =35.6 seconds 
+Fail!! rotationRateParam=0.8 translationRateParamZ=0.035 | Total docking time =22.02 seconds 

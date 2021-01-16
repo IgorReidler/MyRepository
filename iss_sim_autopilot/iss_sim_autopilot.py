@@ -50,8 +50,8 @@ class controlPanelClass():
         self.translationRateParamXY=1 #last success with 1.0 
         self.translationRateParamZ=0.12  #last success with 0.035
         self.readInstrumentsTime=0.3
-        self.desiredRateZarray=np.array([-10,-2,-0.1])
-        self.desiredMaxDistForRateZarray=np.array([50,5])
+        self.desiredRateZarray=np.array([-12,-2,-0.05]) #31sec [-12,-2,-0.08]
+        self.desiredMaxDistForRateZarray=np.array([10,3]) #31sec [10,2]
 
         #speed parameters
         self.translationRateParamZ=0.035 #(same as self.translationRateParamZ=0.035 was good)
@@ -73,12 +73,23 @@ class controlPanelClass():
         self.currentRateArray[6]    = self.readArray[9] #speed
         self.currentRateArray[4]    = self.readArray[10]*60
         self.currentRateArray[5]    = self.readArray[11]*60
+    
+    def dist2rate(self,range,desiredRateZarray,desiredMaxDistForRateZarray):
+        if range > desiredMaxDistForRateZarray[0]:
+            print('dist1')
+            return desiredRateZarray[0]
+        if desiredMaxDistForRateZarray[0] >= range >= desiredMaxDistForRateZarray[1]:
+            print('dist2')
+            return desiredRateZarray[1]
+        if  desiredMaxDistForRateZarray[1] > range:
+            print('dist3')
+            return desiredRateZarray[2]
+        return False #if did not succeed assigning
 
     def calcClicksArray(self):
         self.desiredRateArray=np.multiply(self.currentErrorArray,self.rateParamsArray)
         self.desiredRateArray[5]=self.desiredRateArray[5]+self.rateDeltaGravity #Gravity correction
-        if self.currentRateArray[6]>-0.05: #min rate 0.15
-            self.desiredRateArray[6]=-0.05 #working -0.05
+        self.desiredRateArray[6]=self.dist2rate(self.currentErrorArray[6],self.desiredRateZarray,self.desiredMaxDistForRateZarray)
         self.deltaRateArray=np.subtract(self.desiredRateArray,self.currentRateArray)
         self.executeClicksArray=np.divide(self.deltaRateArray,self.ratePerClickArray)
         self.executeClicksArray=np.sign(self.executeClicksArray) * np.ceil(np.abs(self.executeClicksArray))
