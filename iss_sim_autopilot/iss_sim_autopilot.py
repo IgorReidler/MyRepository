@@ -172,7 +172,7 @@ for gameNum in range(10):
     waitAfterButtonsClickable=5
 
     #chromedriver
-    chromedriver = r"E:\myproj\Python\chromedriver\chromedriver.exe"
+    chromedriver = r"E:\myproj\Python\chromedriver\chromedriver96.0.4664.45.exe"
     browser=webdriver.Chrome(chromedriver)
     #open chrome with the following address
     browser.get("https://iss-sim.spacex.com/")
